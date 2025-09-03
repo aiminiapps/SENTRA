@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0D0D0F;
+  --foreground: #2C2C2E;
+  --quantum-primary: #8BFF32;
+  --quantum-secondary: #5AFF00;
+  --quantum-cyan: #00FFF7;
+  --quantum-violet: #9D4DFF;
+  --quantum-black: #0A0A0A;
+  --quantum-gray: #1C1C1C;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: 
+    /* Premium geometric pattern */
+    radial-gradient(circle at 1px 1px, rgba(139, 255, 50, 0.15) 1px, transparent 0),
+    /* Subtle diagonal lines */
+    linear-gradient(45deg, transparent 49%, rgba(0, 255, 247, 0.03) 50%, transparent 51%),
+    /* Base gradient */
+    linear-gradient(180deg, #0D0D0F 0%, #1A1A1C 100%);
+  background-size: 
+    80px 80px,
+    200px 200px,
+    100% 100%;
+  background-position: 
+    0 0,
+    0 0,
+    0 0;
+  animation: premiumPatternShift 25s ease-in-out infinite;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+@keyframes premiumPatternShift {
+  0%, 100% { 
+    background-position: 0 0, 0 0, 0 0; 
+  }
+  50% { 
+    background-position: 40px 40px, 100px 100px, 0 0; 
+  }
+}
+
+/* Floating quantum nodes */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(139, 255, 50, 0.06) 3px, transparent 4px),
+    radial-gradient(circle at 75% 75%, rgba(0, 255, 247, 0.04) 2px, transparent 3px);
+  background-size: 300px 300px, 200px 200px;
+  animation: quantumFloat 30s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes quantumFloat {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-50px, -300px) rotate(360deg); }
+}
+
+.tektur {
+  font-family: "Space Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* 💎 PREMIUM QUANTUM GLASS */
+.glass {
+  position: relative;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: 
+    /* Single elegant gradient */
+    linear-gradient(145deg, 
+      rgba(139, 255, 50, 0.08) 0%,
+      rgba(0, 255, 247, 0.06) 35%,
+      rgba(44, 44, 46, 0.10) 65%,
+      rgba(139, 255, 50, 0.04) 100%
+    );
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  padding: 1.3rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(139, 255, 50, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(8, 8, 8, 0.4),
+    0 0 1px rgba(139, 255, 50, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* Elegant border glow */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(145deg, 
+    rgba(139, 255, 50, 0.3),
+    rgba(0, 255, 247, 0.2),
+    rgba(139, 255, 50, 0.1)
+  );
+  border-radius: 20px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  z-index: -1;
+}
+
+/* Subtle shimmer */
+.glass::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.glass-p {
+  padding: 0.5rem;
+}
+
+/* Premium hover state */
+.glass:hover {
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  background: 
+    linear-gradient(145deg, 
+      rgba(139, 255, 50, 0.12) 0%,
+      rgba(0, 255, 247, 0.09) 35%,
+      rgba(44, 44, 46, 0.14) 65%,
+      rgba(139, 255, 50, 0.06) 100%
+    );
+  transform: translateY(-2px);
+  border-color: rgba(139, 255, 50, 0.4);
+  box-shadow: 
+    0 16px 48px rgba(8, 8, 8, 0.6),
+    0 0 40px rgba(139, 255, 50, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.glass:hover::after {
+  left: 100%;
+}
+
+/* Minimal quantum indicators */
+.glass-particles {
+  position: relative;
+}
+
+.glass-particles::before {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 4px;
+  height: 4px;
+  background: rgba(139, 255, 50, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(139, 255, 50, 0.6);
+  animation: quantumPulse 2s ease-in-out infinite;
+}
+
+@keyframes quantumPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.5);
+  }
+}
+
+/* Clean variants */
+.glass-light {
+  background: linear-gradient(145deg, 
+    rgba(139, 255, 50, 0.04) 0%,
+    rgba(44, 44, 46, 0.06) 100%
+  );
+  border-color: rgba(139, 255, 50, 0.1);
+}
+
+.glass-dark {
+  background: linear-gradient(145deg, 
+    rgba(139, 255, 50, 0.12) 0%,
+    rgba(44, 44, 46, 0.16) 100%
+  );
+  border-color: rgba(139, 255, 50, 0.3);
+}
+
+.glass-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Premium button */
+.glass-button {
+  position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(90deg, #8BFF32, #5AFF00);
+  border: none;
+  border-radius: 16px;
+  padding: 0.875rem 1.75rem;
+  color: #0A0A0A;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.025em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 16px rgba(139, 255, 50, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.glass-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glass-button:hover::before {
+  opacity: 1;
+}
+
+.glass-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 8px 24px rgba(139, 255, 50, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.glass-button:active {
+  transform: translateY(0) scale(1);
+}
