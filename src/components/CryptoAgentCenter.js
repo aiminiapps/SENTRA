@@ -17,6 +17,7 @@ import {
   Target,
   BarChart3
 } from 'lucide-react';
+import Image from 'next/image';
 
 const CryptoNewsSentra = () => {
   const [newsData, setNewsData] = useState([]);
@@ -284,7 +285,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           className="text-center"
           initial={{ opacity: 0 }}
@@ -298,10 +299,10 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen text-white">
       {/* Floating Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl bg-black/30 border-b border-cyan-500/20">
-        <div className="p-4">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b border-cyan-500/20">
+        <div className="py-4">
           <motion.div 
             className="flex items-center justify-between"
             initial={{ y: -50 }}
@@ -309,10 +310,10 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Activity className="w-6 h-6" />
+                <Image src='/agent/agentlogo.png' alt='Logo' width={50} height={50}/>
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold text-cyan-400">
                   SENTRA Intel
                 </h1>
                 <p className="text-xs text-gray-400">Real-time Market Pulse ({newsData.length} stories)</p>
@@ -327,7 +328,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
       </div>
 
       {/* News Stream */}
-      <div className="p-4 space-y-4">
+      <div className="py-4 space-y-4">
         {newsData.length > 0 ? (
           newsData.map((news, index) => (
             <motion.div
@@ -368,12 +369,9 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                           {getTimeAgo(news.publishedAt)}
                         </span>
                       </div>
-                      <h3 className="text-lg font-bold leading-tight mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                      <h3 className="text-lg font-semibold leading-tight mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                         {news.title}
                       </h3>
-                      <p className="text-sm text-gray-400 leading-relaxed">
-                        {news.description}
-                      </p>
                     </div>
                     
                     {/* Sentiment Indicator */}
@@ -397,6 +395,9 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                       </span>
                     </div>
                   </div>
+                  <p className="text-sm text-gray-400 leading-relaxed mb-3 -mt-3">
+                            {news.description}
+                  </p>
 
                   {/* Metrics Dashboard */}
                   <div className="grid grid-cols-4 gap-3 mb-4">
