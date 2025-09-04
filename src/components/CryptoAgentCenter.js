@@ -502,7 +502,6 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                         <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-4 mb-3">
                           <ReactMarkdown 
                             rehypePlugins={[rehypeRaw]}
-                            className="prose prose-invert prose-sm max-w-none"
                             components={{
                               h1: ({ children }) => <h1 className="text-lg font-bold text-cyan-400 mb-2">{children}</h1>,
                               h2: ({ children }) => <h2 className="text-base font-semibold text-white mb-2">{children}</h2>,
