@@ -19,6 +19,7 @@ import DataCenterHome from '@/components/DataCenterHome';
 import SearchAgent from '@/components/ui/SearchAgent';
 import { SquareCheckBig, UserPlus, History, Check, CheckCircle } from 'lucide-react';
 import QuantoraCommunityHub from '@/components/CommunityHub';
+import CryptoNewsSentra from '@/components/CryptoAgentCenter';
 
 // Earning Timer Component
 const EarningTimer = () => {
@@ -304,7 +305,7 @@ function TelegramMiniApp() {
         earningTimer={earningTimer}
         startEarningTimer={startEarningTimer}
       />
-      <CryptoAgentCenter />
+      <CryptoNewsSentra/>
       <div className="flex justify-between items-center">
         <h2 className="text-white text-xl font-bold">Market Intelligence</h2>
         <button
