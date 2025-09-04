@@ -48,6 +48,7 @@ import {
 import { LuBrainCircuit, LuTarget } from 'react-icons/lu';
 import { MdOutlineRadar } from "react-icons/md";
 import { BsExclamationTriangle } from "react-icons/bs";
+import Image from 'next/image';
 
 // Register Chart.js components
 ChartJS.register(
@@ -579,8 +580,8 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="relative text-center">
-          
-          <p className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-2">
+          <Image src='/logo.png' alt='Logo' width={250} height={100} className='mx-auto mb-3'/>
+          <p className="text-cyan-400 font-bold text-sm uppercase tracking-wider mb-2">
             Advanced Fusion AI Agent Platform
           </p>
           <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400">
@@ -1438,7 +1439,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
             </AnimatePresence>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <motion.button
                 onClick={() => {
                   const exportData = {
@@ -1461,7 +1462,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                   
                   hapticFeedback('medium');
                 }}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ padding: '16px' }}
@@ -1481,7 +1482,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                   });
                   hapticFeedback('light');
                 }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ padding: '16px' }}
@@ -1490,6 +1491,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                 Share
               </motion.button>
 
+            </div>
               <motion.button
                 onClick={() => {
                   setInputData({
@@ -1512,7 +1514,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                   setRealTimeDisplay({ viralPotential: 0, socialMomentum: 0, isActive: false });
                   hapticFeedback('light');
                 }}
-                className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-gray-200 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                className="bg-gradient-to-r w-full -mt-4 from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-gray-200 font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ padding: '16px' }}
@@ -1520,13 +1522,12 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                 <HiRefresh className="w-5 h-5" />
                 New Analysis
               </motion.button>
-            </div>
           </div>
         )}
       </AnimatePresence>
 
       {/* Bottom Safe Area */}
-      <div style={{ height: '80px' }}></div>
+      <div style={{ height: '150px' }}></div>
     </div>
   );
 }
