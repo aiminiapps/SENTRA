@@ -195,7 +195,7 @@ export default function SentraCommunityHub() {
   };
 
   return (
-    <div className="pb-20 space-y-6">
+    <div className="pb-20 space-y-6 -mt-20">
       {/* Header Section */}
       <motion.div 
         className="glass relative overflow-hidden"
@@ -204,18 +204,11 @@ export default function SentraCommunityHub() {
         transition={{ duration: 0.8 }}
       >
         <div className="corner-markers"></div>
-        <div className="glass-content p-6 text-center">
-          <motion.div 
-            className="w-16 h-16 bg-gradient-to-r from-signal-glow-cyan to-matrix-violet rounded-3xl flex items-center justify-center shadow-2xl mx-auto mb-4"
-            whileHover={{ scale: 1.05, rotate: 5 }}
-          >
-            <HiOutlineUsers className="w-8 h-8 text-crisp-white" />
-          </motion.div>
-          
-          <h1 className="text-3xl font-black sentra-gradient-text mb-2">
+        <div className="glass-content text-center">          
+          <h1 className="text-xl font-bold sentra-gradient-text mb-2">
             SENTRA COMMUNITY
           </h1>
-          <p className="text-signal-glow-cyan font-bold text-sm terminal-header mb-3">
+          <p className="text-cyan-400 font-bold text-sm mb-3">
             TOP INTELLIGENCE ANALYSTS
           </p>
           
@@ -225,11 +218,9 @@ export default function SentraCommunityHub() {
             animate={{ opacity: [0.8, 1, 0.8] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <div className="status-indicator w-3 h-3 bg-neon-lime rounded-full shadow-lg" />
-            <span className="text-crisp-white/90 text-lg font-bold">
+            <span className="text-white/90 text-lg font-bold">
               {activeUsers.toLocaleString()} Active Analysts
             </span>
-            <div className="status-indicator w-3 h-3 bg-signal-glow-cyan rounded-full shadow-lg" />
           </motion.div>
         </div>
       </motion.div>
@@ -268,7 +259,7 @@ export default function SentraCommunityHub() {
       {!loading && (
         <div className="space-y-4">
           <motion.h2 
-            className="text-xl font-black terminal-header text-center text-signal-glow-cyan mb-6"
+            className="text-xl font-semibold terminal-header text-center text-cyan-400 mb-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -300,26 +291,12 @@ export default function SentraCommunityHub() {
                     analyst.rank <= 3 ? 'bg-neon-lime' : 'bg-signal-glow-cyan'
                   } opacity-60`} />
                   
-                  <div className="glass-content p-4">
+                  <div className="glass-content">
                     <div className="flex items-center justify-between">
                       {/* Left Section - User Info */}
                       <div className="flex items-center gap-4 flex-1">
-                        {/* Rank Badge */}
-                        <motion.div 
-                          className={`
-                            w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-lg
-                            ${analyst.rank <= 3 
-                              ? 'bg-gradient-to-r from-neon-lime to-electric-green text-quantum-black' 
-                              : 'bg-gradient-to-r from-signal-glow-cyan to-matrix-violet text-crisp-white'
-                            }
-                          `}
-                          whileHover={{ scale: 1.1, rotate: 5 }}
-                        >
-                          {getRankIcon(analyst.rank)}
-                        </motion.div>
-
                         {/* Avatar and Info */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between gap-3">
                           <div className="relative">
                             <img
                               src={generateAvatar(analyst.username, index)}
@@ -329,24 +306,24 @@ export default function SentraCommunityHub() {
                               className="rounded-xl shadow-lg"
                               loading="lazy"
                             />
-                            <div className={`status-indicator absolute -bottom-1 -right-1 w-4 h-4 bg-${getStatusColor(analyst.status)} rounded-full border-2 border-quantum-black shadow-lg`} />
+                            <div className={`status-indicator absolute -bottom-1 -right-1 w-4 h-4 bg-${getStatusColor(analyst.status)} rounded-full border-2 border-black shadow-lg`} />
                             {analyst.verified && (
                               <div className="absolute -top-1 -right-1 w-4 h-4 bg-neon-lime rounded-full flex items-center justify-center">
-                                <HiOutlineShieldCheck className="w-3 h-3 text-quantum-black" />
+                                <HiOutlineShieldCheck className="w-3 h-3 text-green-500 bg-black rounded-full" />
                               </div>
                             )}
                           </div>
 
                           <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-crisp-white font-bold text-sm">
+                            <div className="flex items-center gap-2 mb-1 ">
+                              <h3 className="text-white font-bold text-sm">
                                 {analyst.displayName}
                               </h3>
                               <span className={`px-2 py-0.5 rounded-lg text-xs font-bold bg-${getLevelColor(analyst.level)}/20 text-${getLevelColor(analyst.level)}`}>
                                 {analyst.level}
                               </span>
                             </div>
-                            <p className="text-crisp-white/60 text-xs font-mono mb-1">
+                            <p className="text-white/60 text-xs font-mono mb-1">
                               {analyst.username}
                             </p>
                             <p className="text-crisp-white/80 text-xs font-medium">
@@ -359,22 +336,17 @@ export default function SentraCommunityHub() {
                       {/* Right Section - Score */}
                       <div className="text-right">
                         <motion.div 
-                          className="flex items-center gap-1 text-neon-lime text-xl font-black mb-1"
+                          className="flex items-center gap-1 text-neon-lime text-xl text-right font-semibold mb-1"
                           whileHover={{ scale: 1.05 }}
                         >
-                          <HiSparkles className="w-5 h-5" />
                           <span>{analyst.score.toLocaleString()}</span>
                         </motion.div>
-                        <p className="text-crisp-white/50 text-xs font-medium terminal-header">
-                          INTELLIGENCE SCORE
-                        </p>
                       </div>
                     </div>
 
                     {/* Status Bar */}
-                    <div className="flex items-center justify-between pt-3 mt-3 border-t border-crisp-white/10">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 bg-${getStatusColor(analyst.status)} rounded-full animate-pulse`} />
+                    <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/10">
+                      <div className="flex items-center gap-2 text-blue-600">
                         <span className={`text-${getStatusColor(analyst.status)} text-xs font-bold terminal-header`}>
                           {analyst.status.toUpperCase()}
                         </span>
@@ -382,7 +354,7 @@ export default function SentraCommunityHub() {
                       
                       <div className="flex items-center gap-1">
                         {analyst.verified && (
-                          <div className="flex items-center gap-1 text-neon-lime">
+                          <div className="flex items-center gap-1 text-lime-500">
                             <HiOutlineShieldCheck className="w-3 h-3" />
                             <span className="text-xs font-bold">VERIFIED</span>
                           </div>
@@ -412,33 +384,33 @@ export default function SentraCommunityHub() {
           transition={{ delay: 1.5 }}
         >
           <div className="corner-markers"></div>
-          <div className="glass-content p-6">
-            <h3 className="text-lg font-black terminal-header text-center text-signal-glow-cyan mb-4">
+          <div className="glass-content">
+            <h3 className="text-lg font-semibold text-center text-cyan-400 mb-4">
               COMMUNITY INTELLIGENCE METRICS
             </h3>
             
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-neon-lime font-black text-2xl mb-1">
+                <div className="text-lime-400 font-black text-xl mb-1">
                   {Math.floor(activeUsers * 0.12).toLocaleString()}
                 </div>
-                <div className="text-crisp-white/70 text-xs font-semibold terminal-header">
+                <div className="text-white/70 text-xs font-semibold terminal-header">
                   DAILY ANALYSES
                 </div>
               </div>
               <div>
-                <div className="text-signal-glow-cyan font-black text-2xl mb-1">
+                <div className="text-cyan-400 font-black text-xl mb-1">
                   {Math.floor(activeUsers * 0.08).toLocaleString()}
                 </div>
-                <div className="text-crisp-white/70 text-xs font-semibold terminal-header">
+                <div className="text-white/70 text-xs font-semibold terminal-header">
                   ALERTS SENT
                 </div>
               </div>
               <div>
-                <div className="text-matrix-violet font-black text-2xl mb-1">
+                <div className="text-violet-400 font-black text-xl mb-1">
                   {Math.floor(activeUsers * 0.15).toLocaleString()}
                 </div>
-                <div className="text-crisp-white/70 text-xs font-semibold terminal-header">
+                <div className="text-white/70 text-xs font-semibold terminal-header">
                   CREDITS EARNED
                 </div>
               </div>
