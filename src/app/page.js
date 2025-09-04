@@ -306,7 +306,7 @@ function TelegramMiniApp() {
         startEarningTimer={startEarningTimer}
       /> */}
       <CryptoNewsSentra/>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center -mt-10">
         <h2 className="text-white text-xl font-bold">Market Intelligence</h2>
         <button
           onClick={() => handleTabNavigation('dataCenter')}

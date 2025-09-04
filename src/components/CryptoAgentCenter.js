@@ -340,7 +340,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
             >
               {/* Main News Card */}
               <div 
-                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800/50 via-slate-700/30 to-slate-800/50 backdrop-blur-sm border border-slate-600/30 cursor-pointer transform transition-all duration-300 hover:scale-[1.02]"
+                className="relative glass overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-[1.02]"
                 onClick={() => {
                   if (selectedNews === news.id) {
                     setSelectedNews(null);
@@ -352,11 +352,8 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                   }
                   vibrate();
                 }}
-              >
-                {/* Glowing Edge Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent animate-pulse"></div>
-                
-                <div className="relative p-5">
+              > 
+                <div className="relative">
                   {/* Header Row */}
                   <div className="flex items-start gap-4 mb-4">
                     <div className="flex-1">
@@ -542,9 +539,6 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
           </div>
         )}
       </div>
-
-      {/* Bottom Safe Area */}
-      <div className="h-20"></div>
     </div>
   );
 };
