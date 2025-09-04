@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -20,7 +20,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { Line, Bar, Radar, Doughnut, Scatter } from 'react-chartjs-2';
+import { Line, Bar, Radar, Doughnut } from 'react-chartjs-2';
 import { 
   HiTrendingUp, 
   HiTrendingDown,
@@ -29,8 +29,6 @@ import {
   HiEye,
   HiUsers,
   HiChat,
-  HiHeart,
-  HiShare,
   HiRefresh,
   HiSparkles,
   HiShieldCheck,
@@ -41,18 +39,15 @@ import {
   HiBeaker,
   HiOutlineAdjustments,
   HiOutlineChatAlt,
-  HiOutlineSearch,
-  HiOutlineFilter,
-  HiOutlineMicrophone,
   HiOutlineLocationMarker,
   HiOutlineCalendar,
   HiOutlineTag,
   HiOutlineUserGroup,
-  HiOutlineHashtag
+  HiShare
 } from 'react-icons/hi';
-import { LuBrainCircuit, LuTarget, LuTrendingUp } from 'react-icons/lu';
-import { BsExclamationTriangle } from "react-icons/bs";
+import { LuBrainCircuit, LuTarget } from 'react-icons/lu';
 import { MdOutlineRadar } from "react-icons/md";
+import { BsExclamationTriangle } from "react-icons/bs";
 
 // Register Chart.js components
 ChartJS.register(
@@ -90,7 +85,11 @@ export default function SentraHypeCycleSocialIntelligenceAgent() {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [isWebApp, setIsWebApp] = useState(false);
-  const [realTimeData, setRealTimeData] = useState(null);
+  
+  // **FIX: Use refs to store stable chart data that won't cause re-renders**
+  const stableChartDataRef = useRef(null);
+  const realTimeStatusRef = useRef({ isActive: false, lastUpdate: null });
+  
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -105,57 +104,60 @@ export default function SentraHypeCycleSocialIntelligenceAgent() {
     }
   }, [isWebApp]);
 
-  // Generate realistic social intelligence data
-  const generateSocialIntelligenceData = () => ({
-    hypeCycleStage: ['Early Formation', 'Rising Hype', 'Peak Hype', 'Decline', 'Stabilization'][Math.floor(Math.random() * 5)],
-    viralPotential: Math.floor(Math.random() * 40) + 60,
-    influencerEngagement: Math.floor(Math.random() * 50) + 50,
-    socialMomentum: Math.floor(Math.random() * 60) + 40,
-    peakPrediction: Math.floor(Math.random() * 72) + 6, // 6-78 hours
-    riskLevel: Math.floor(Math.random() * 30) + 40,
-    platformData: {
-      twitter: {
-        mentions: Math.floor(Math.random() * 50000) + 10000,
-        sentiment: Math.floor(Math.random() * 40) + 30,
-        influencers: Math.floor(Math.random() * 200) + 50,
-        hashtags: ['#crypto', '#bullrun', '#altseason', '#DeFi', '#Web3'].slice(0, Math.floor(Math.random() * 3) + 2)
+  // **FIX: Memoized stable data generation - only runs when needed**
+  const generateSocialIntelligenceData = useCallback(() => {
+    return {
+      hypeCycleStage: ['Early Formation', 'Rising Hype', 'Peak Hype', 'Decline', 'Stabilization'][Math.floor(Math.random() * 5)],
+      viralPotential: Math.floor(Math.random() * 40) + 60,
+      influencerEngagement: Math.floor(Math.random() * 50) + 50,
+      socialMomentum: Math.floor(Math.random() * 60) + 40,
+      peakPrediction: Math.floor(Math.random() * 72) + 6,
+      riskLevel: Math.floor(Math.random() * 30) + 40,
+      platformData: {
+        twitter: {
+          mentions: Math.floor(Math.random() * 50000) + 10000,
+          sentiment: Math.floor(Math.random() * 40) + 30,
+          influencers: Math.floor(Math.random() * 200) + 50,
+          hashtags: ['#crypto', '#bullrun', '#altseason', '#DeFi', '#Web3'].slice(0, Math.floor(Math.random() * 3) + 2)
+        },
+        reddit: {
+          posts: Math.floor(Math.random() * 1000) + 200,
+          upvotes: Math.floor(Math.random() * 10000) + 2000,
+          comments: Math.floor(Math.random() * 5000) + 1000,
+          sentiment: Math.floor(Math.random() * 50) + 25
+        },
+        discord: {
+          mentions: Math.floor(Math.random() * 5000) + 1000,
+          servers: Math.floor(Math.random() * 100) + 20,
+          activity: Math.floor(Math.random() * 80) + 20
+        },
+        telegram: {
+          channels: Math.floor(Math.random() * 50) + 10,
+          messages: Math.floor(Math.random() * 10000) + 2000,
+          views: Math.floor(Math.random() * 100000) + 20000
+        }
       },
-      reddit: {
-        posts: Math.floor(Math.random() * 1000) + 200,
-        upvotes: Math.floor(Math.random() * 10000) + 2000,
-        comments: Math.floor(Math.random() * 5000) + 1000,
-        sentiment: Math.floor(Math.random() * 50) + 25
+      // **FIX: Generate stable time series data once**
+      timeSeriesData: {
+        hype: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
+        social: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
+        influencer: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
+        risk: Array.from({length: 24}, () => Math.floor(Math.random() * 100))
       },
-      discord: {
-        mentions: Math.floor(Math.random() * 5000) + 1000,
-        servers: Math.floor(Math.random() * 100) + 20,
-        activity: Math.floor(Math.random() * 80) + 20
-      },
-      telegram: {
-        channels: Math.floor(Math.random() * 50) + 10,
-        messages: Math.floor(Math.random() * 10000) + 2000,
-        views: Math.floor(Math.random() * 100000) + 20000
-      }
-    },
-    timeSeriesData: {
-      hype: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
-      social: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
-      influencer: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
-      risk: Array.from({length: 24}, () => Math.floor(Math.random() * 100))
-    },
-    topInfluencers: [
-      { name: 'CryptoGuru_Pro', followers: '2.3M', impact: 95, verified: true },
-      { name: 'DeFiWhale_', followers: '1.8M', impact: 88, verified: true },
-      { name: 'BlockchainBuzz', followers: '956K', impact: 82, verified: false },
-      { name: 'AltcoinDaily', followers: '743K', impact: 79, verified: true },
-      { name: 'CryptoInsider', followers: '521K', impact: 71, verified: false }
-    ],
-    viralPosts: [
-      { platform: 'Twitter', content: 'BREAKING: Major institutional adoption announcement...', engagement: 45000, viralScore: 98 },
-      { platform: 'Reddit', content: 'Technical analysis shows bullish breakout pattern...', engagement: 12000, viralScore: 85 },
-      { platform: 'Discord', content: 'Insider info: Big partnership reveal tomorrow...', engagement: 8500, viralScore: 76 }
-    ]
-  });
+      topInfluencers: [
+        { name: 'CryptoGuru_Pro', followers: '2.3M', impact: 95, verified: true },
+        { name: 'DeFiWhale_', followers: '1.8M', impact: 88, verified: true },
+        { name: 'BlockchainBuzz', followers: '956K', impact: 82, verified: false },
+        { name: 'AltcoinDaily', followers: '743K', impact: 79, verified: true },
+        { name: 'CryptoInsider', followers: '521K', impact: 71, verified: false }
+      ],
+      viralPosts: [
+        { platform: 'Twitter', content: 'BREAKING: Major institutional adoption announcement...', engagement: 45000, viralScore: 98 },
+        { platform: 'Reddit', content: 'Technical analysis shows bullish breakout pattern...', engagement: 12000, viralScore: 85 },
+        { platform: 'Discord', content: 'Insider info: Big partnership reveal tomorrow...', engagement: 8500, viralScore: 76 }
+      ]
+    };
+  }, []);
 
   // Handle comprehensive analysis
   const handleAnalyze = async (e) => {
@@ -222,7 +224,9 @@ Format response in detailed markdown with specific metrics, charts data suggesti
       const data = await response.json();
 
       if (data.reply) {
+        // **FIX: Generate data only once and store in ref for stable charts**
         const socialData = generateSocialIntelligenceData();
+        stableChartDataRef.current = socialData;
         
         setAnalysisResult({
           analysis: data.reply,
@@ -233,8 +237,13 @@ Format response in detailed markdown with specific metrics, charts data suggesti
           parameters: inputData
         });
 
-        // Start real-time monitoring simulation
-        setRealTimeData(socialData);
+        // **FIX: Set real-time status but don't auto-update chart data**
+        realTimeStatusRef.current = {
+          isActive: true,
+          lastUpdate: new Date(),
+          viralPotential: socialData.viralPotential,
+          socialMomentum: socialData.socialMomentum
+        };
         
         hapticFeedback('heavy');
       } else {
@@ -317,207 +326,249 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  // Real-time data simulation
-  useEffect(() => {
-    if (!realTimeData) return;
+  // **FIX: Remove real-time data updates that were causing chart refresh**
+  // Real-time status display (non-chart affecting)
+  const [realTimeDisplay, setRealTimeDisplay] = useState({
+    viralPotential: 0,
+    socialMomentum: 0,
+    isActive: false
+  });
 
+  // **FIX: Only update display values, not chart data**
+  useEffect(() => {
+    if (!realTimeStatusRef.current.isActive) return;
+
+    // Update only display values every 3 seconds, not chart data
     const interval = setInterval(() => {
-      setRealTimeData(prev => ({
-        ...prev,
-        viralPotential: Math.max(0, Math.min(100, prev.viralPotential + (Math.random() - 0.5) * 10)),
-        socialMomentum: Math.max(0, Math.min(100, prev.socialMomentum + (Math.random() - 0.5) * 8))
+      setRealTimeDisplay(prev => ({
+        viralPotential: Math.max(0, Math.min(100, prev.viralPotential + (Math.random() - 0.5) * 5)),
+        socialMomentum: Math.max(0, Math.min(100, prev.socialMomentum + (Math.random() - 0.5) * 3)),
+        isActive: true
       }));
     }, 3000);
 
+    // Initialize display values from ref
+    if (realTimeStatusRef.current.viralPotential) {
+      setRealTimeDisplay({
+        viralPotential: realTimeStatusRef.current.viralPotential,
+        socialMomentum: realTimeStatusRef.current.socialMomentum,
+        isActive: true
+      });
+    }
+
     return () => clearInterval(interval);
-  }, [realTimeData]);
+  }, [analysisResult?.analysisId]); // Only depend on new analysis, not continuous updates
 
-  // Chart Components
-  const HypeCycleChart = ({ data }) => {
-    const chartData = {
-      labels: Array.from({length: 24}, (_, i) => `${i}h`),
-      datasets: [
-        {
-          label: 'Hype Level',
-          data: data.hype,
-          fill: true,
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          borderColor: 'rgba(239, 68, 68, 1)',
-          borderWidth: 3,
-          tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 8
+  // **FIX: Memoized chart components with stable data**
+  const HypeCycleChart = useMemo(() => {
+    if (!stableChartDataRef.current) return null;
+
+    const ChartComponent = ({ data }) => {
+      const chartData = useMemo(() => ({
+        labels: Array.from({length: 24}, (_, i) => `${i}h`),
+        datasets: [
+          {
+            label: 'Hype Level',
+            data: data.hype,
+            fill: true,
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            borderColor: 'rgba(239, 68, 68, 1)',
+            borderWidth: 3,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 8
+          },
+          {
+            label: 'Risk Level',
+            data: data.risk,
+            fill: true,
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            borderColor: 'rgba(245, 158, 11, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 3
+          }
+        ]
+      }), [data]);
+
+      const options = useMemo(() => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            display: true,
+            labels: { color: '#ffffff', font: { size: 12 } }
+          },
+          tooltip: { 
+            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+            titleColor: '#ffffff',
+            bodyColor: '#d1d5db'
+          }
         },
-        {
-          label: 'Risk Level',
-          data: data.risk,
+        scales: {
+          x: { 
+            grid: { color: 'rgba(55, 65, 81, 0.3)' },
+            ticks: { color: '#9ca3af' }
+          },
+          y: { 
+            min: 0, max: 100,
+            grid: { color: 'rgba(55, 65, 81, 0.3)' },
+            ticks: { color: '#9ca3af' }
+          }
+        }
+      }), []);
+
+      return <Line data={chartData} options={options} height={300} />;
+    };
+
+    return ChartComponent;
+  }, [analysisResult?.analysisId]); // Only remount on new analysis
+
+  const SocialRadarChart = useMemo(() => {
+    if (!stableChartDataRef.current) return null;
+
+    const ChartComponent = ({ data }) => {
+      const chartData = useMemo(() => ({
+        labels: ['Twitter', 'Reddit', 'Discord', 'Telegram', 'Influencers', 'Viral Content'],
+        datasets: [{
+          label: 'Social Intelligence',
+          data: [
+            data.platformData.twitter.sentiment,
+            data.platformData.reddit.sentiment,
+            data.platformData.discord.activity,
+            Math.floor(data.platformData.telegram.views / 1000),
+            data.influencerEngagement,
+            data.viralPotential
+          ],
           fill: true,
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          borderColor: 'rgba(245, 158, 11, 1)',
+          backgroundColor: 'rgba(99, 102, 241, 0.2)',
+          borderColor: 'rgba(99, 102, 241, 1)',
           borderWidth: 2,
-          tension: 0.4,
-          pointRadius: 3
-        }
-      ]
-    };
+          pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+          pointRadius: 6
+        }]
+      }), [data]);
 
-    const options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { 
-          display: true,
-          labels: { color: '#ffffff', font: { size: 12 } }
+      const options = useMemo(() => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
         },
-        tooltip: { 
-          backgroundColor: 'rgba(17, 24, 39, 0.95)',
-          titleColor: '#ffffff',
-          bodyColor: '#d1d5db'
+        scales: {
+          r: {
+            min: 0,
+            max: 100,
+            ticks: { color: '#9ca3af', backdropColor: 'transparent' },
+            grid: { color: 'rgba(55, 65, 81, 0.3)' },
+            angleLines: { color: 'rgba(55, 65, 81, 0.3)' },
+            pointLabels: { color: '#ffffff', font: { size: 12 } }
+          }
         }
-      },
-      scales: {
-        x: { 
-          grid: { color: 'rgba(55, 65, 81, 0.3)' },
-          ticks: { color: '#9ca3af' }
+      }), []);
+
+      return <Radar data={chartData} options={options} height={300} />;
+    };
+
+    return ChartComponent;
+  }, [analysisResult?.analysisId]);
+
+  const InfluencerImpactChart = useMemo(() => {
+    if (!stableChartDataRef.current) return null;
+
+    const ChartComponent = ({ influencers }) => {
+      const chartData = useMemo(() => ({
+        labels: influencers.map(inf => inf.name),
+        datasets: [{
+          label: 'Impact Score',
+          data: influencers.map(inf => inf.impact),
+          backgroundColor: [
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(59, 130, 246, 0.8)', 
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      }), [influencers]);
+
+      const options = useMemo(() => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+            titleColor: '#ffffff',
+            bodyColor: '#d1d5db'
+          }
         },
-        y: { 
-          min: 0, max: 100,
-          grid: { color: 'rgba(55, 65, 81, 0.3)' },
-          ticks: { color: '#9ca3af' }
+        scales: {
+          x: { 
+            ticks: { color: '#9ca3af', maxRotation: 45 },
+            grid: { color: 'rgba(55, 65, 81, 0.3)' }
+          },
+          y: { 
+            min: 0, max: 100,
+            ticks: { color: '#9ca3af' },
+            grid: { color: 'rgba(55, 65, 81, 0.3)' }
+          }
         }
-      }
+      }), []);
+
+      return <Bar data={chartData} options={options} height={250} />;
     };
 
-    return <Line data={chartData} options={options} height={300} />;
-  };
+    return ChartComponent;
+  }, [analysisResult?.analysisId]);
 
-  const SocialRadarChart = ({ data }) => {
-    const chartData = {
-      labels: ['Twitter', 'Reddit', 'Discord', 'Telegram', 'Influencers', 'Viral Content'],
-      datasets: [{
-        label: 'Social Intelligence',
-        data: [
-          data.platformData.twitter.sentiment,
-          data.platformData.reddit.sentiment,
-          data.platformData.discord.activity,
-          Math.floor(data.platformData.telegram.views / 1000),
-          data.influencerEngagement,
-          data.viralPotential
-        ],
-        fill: true,
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        borderColor: 'rgba(99, 102, 241, 1)',
-        borderWidth: 2,
-        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-        pointRadius: 6
-      }]
-    };
+  const PlatformDistributionChart = useMemo(() => {
+    if (!stableChartDataRef.current) return null;
 
-    const options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        r: {
-          min: 0,
-          max: 100,
-          ticks: { color: '#9ca3af', backdropColor: 'transparent' },
-          grid: { color: 'rgba(55, 65, 81, 0.3)' },
-          angleLines: { color: 'rgba(55, 65, 81, 0.3)' },
-          pointLabels: { color: '#ffffff', font: { size: 12 } }
+    const ChartComponent = ({ platformData }) => {
+      const chartData = useMemo(() => ({
+        labels: ['Twitter', 'Reddit', 'Discord', 'Telegram'],
+        datasets: [{
+          data: [
+            platformData.twitter.mentions,
+            platformData.reddit.posts * 10,
+            platformData.discord.mentions,
+            platformData.telegram.messages
+          ],
+          backgroundColor: [
+            'rgba(29, 161, 242, 0.8)',
+            'rgba(255, 69, 0, 0.8)',
+            'rgba(114, 137, 218, 0.8)',
+            'rgba(0, 136, 204, 0.8)'
+          ],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      }), [platformData]);
+
+      const options = useMemo(() => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'bottom',
+            labels: { color: '#ffffff', font: { size: 12 } }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+            titleColor: '#ffffff',
+            bodyColor: '#d1d5db'
+          }
         }
-      }
+      }), []);
+
+      return <Doughnut data={chartData} options={options} height={250} />;
     };
 
-    return <Radar data={chartData} options={options} height={300} />;
-  };
-
-  const InfluencerImpactChart = ({ influencers }) => {
-    const chartData = {
-      labels: influencers.map(inf => inf.name),
-      datasets: [{
-        label: 'Impact Score',
-        data: influencers.map(inf => inf.impact),
-        backgroundColor: [
-          'rgba(16, 185, 129, 0.8)',
-          'rgba(59, 130, 246, 0.8)', 
-          'rgba(139, 92, 246, 0.8)',
-          'rgba(245, 158, 11, 0.8)',
-          'rgba(239, 68, 68, 0.8)'
-        ],
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    };
-
-    const options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(17, 24, 39, 0.95)',
-          titleColor: '#ffffff',
-          bodyColor: '#d1d5db'
-        }
-      },
-      scales: {
-        x: { 
-          ticks: { color: '#9ca3af', maxRotation: 45 },
-          grid: { color: 'rgba(55, 65, 81, 0.3)' }
-        },
-        y: { 
-          min: 0, max: 100,
-          ticks: { color: '#9ca3af' },
-          grid: { color: 'rgba(55, 65, 81, 0.3)' }
-        }
-      }
-    };
-
-    return <Bar data={chartData} options={options} height={250} />;
-  };
-
-  const PlatformDistributionChart = ({ platformData }) => {
-    const chartData = {
-      labels: ['Twitter', 'Reddit', 'Discord', 'Telegram'],
-      datasets: [{
-        data: [
-          platformData.twitter.mentions,
-          platformData.reddit.posts * 10,
-          platformData.discord.mentions,
-          platformData.telegram.messages
-        ],
-        backgroundColor: [
-          'rgba(29, 161, 242, 0.8)',
-          'rgba(255, 69, 0, 0.8)',
-          'rgba(114, 137, 218, 0.8)',
-          'rgba(0, 136, 204, 0.8)'
-        ],
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    };
-
-    const options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { 
-          position: 'bottom',
-          labels: { color: '#ffffff', font: { size: 12 } }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(17, 24, 39, 0.95)',
-          titleColor: '#ffffff',
-          bodyColor: '#d1d5db'
-        }
-      }
-    };
-
-    return <Doughnut data={chartData} options={options} height={250} />;
-  };
+    return ChartComponent;
+  }, [analysisResult?.analysisId]);
 
   return (
     <div className="min-h-screen text-white">
@@ -782,8 +833,8 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
         </div>
       </motion.form>
 
-      {/* Real-time Status Bar */}
-      {realTimeData && (
+      {/* **FIX: Real-time Status Bar (display only, no chart data changes)** */}
+      {realTimeDisplay.isActive && (
         <motion.div 
           className="glass mb-6 relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
@@ -800,14 +851,20 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                 <span className="text-green-400 font-bold text-sm">LIVE MONITORING</span>
               </div>
               <div className="text-sm text-gray-400">
-                Viral Potential: <span className="text-purple-400 font-bold">{Math.round(realTimeData.viralPotential)}%</span>
+                Viral Potential: <span className="text-purple-400 font-bold">{Math.round(realTimeDisplay.viralPotential)}%</span>
               </div>
               <div className="text-sm text-gray-400">
-                Social Momentum: <span className="text-blue-400 font-bold">{Math.round(realTimeData.socialMomentum)}%</span>
+                Social Momentum: <span className="text-blue-400 font-bold">{Math.round(realTimeDisplay.socialMomentum)}%</span>
               </div>
             </div>
             <motion.button
-              onClick={() => setRealTimeData(generateSocialIntelligenceData())}
+              onClick={() => {
+                setRealTimeDisplay({
+                  viralPotential: Math.floor(Math.random() * 40) + 60,
+                  socialMomentum: Math.floor(Math.random() * 60) + 40,
+                  isActive: true
+                });
+              }}
               className="text-gray-400 hover:text-white transition-colors"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -837,7 +894,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
 
       {/* Analysis Results */}
       <AnimatePresence>
-        {analysisResult && (
+        {analysisResult && stableChartDataRef.current && (
           <div className="space-y-6">
             {/* Results Header */}
             <motion.div 
@@ -1012,6 +1069,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                   exit={{ opacity: 0, x: 20 }}
                   className="space-y-6"
                 >
+                  {/* **FIX: Stable chart rendering with memoized components** */}
                   {/* Hype Cycle Timeline */}
                   <div className="glass">
                     <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
@@ -1019,7 +1077,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                       Hype Cycle Timeline (24h)
                     </h3>
                     <div style={{ height: '300px' }}>
-                      <HypeCycleChart data={analysisResult.socialIntelligence.timeSeriesData} />
+                      {HypeCycleChart && <HypeCycleChart data={stableChartDataRef.current.timeSeriesData} />}
                     </div>
                   </div>
 
@@ -1030,7 +1088,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                       Social Intelligence Radar
                     </h3>
                     <div style={{ height: '350px' }}>
-                      <SocialRadarChart data={analysisResult.socialIntelligence} />
+                      {SocialRadarChart && <SocialRadarChart data={stableChartDataRef.current} />}
                     </div>
                   </div>
 
@@ -1041,7 +1099,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                       Platform Activity Distribution
                     </h3>
                     <div style={{ height: '300px' }}>
-                      <PlatformDistributionChart platformData={analysisResult.socialIntelligence.platformData} />
+                      {PlatformDistributionChart && <PlatformDistributionChart platformData={stableChartDataRef.current.platformData} />}
                     </div>
                   </div>
                 </motion.div>
@@ -1149,7 +1207,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                     </h3>
                     
                     <div style={{ height: '300px', marginBottom: '16px' }}>
-                      <InfluencerImpactChart influencers={analysisResult.socialIntelligence.topInfluencers} />
+                      {InfluencerImpactChart && <InfluencerImpactChart influencers={analysisResult.socialIntelligence.topInfluencers} />}
                     </div>
 
                     <div className="space-y-3">
@@ -1200,7 +1258,6 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                       <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                        className="prose prose-invert prose-lg max-w-none"
                         components={{
                           h1: ({ children, ...props }) => (
                             <h1 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2" {...props}>
@@ -1418,7 +1475,6 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
             <div className="grid grid-cols-3 gap-4">
               <motion.button
                 onClick={() => {
-                  // Export comprehensive analysis
                   const exportData = {
                     analysis: analysisResult.analysis,
                     socialIntelligence: analysisResult.socialIntelligence,
@@ -1455,7 +1511,6 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                     text: `Hype Stage: ${analysisResult.socialIntelligence.hypeCycleStage} | Viral Potential: ${analysisResult.socialIntelligence.viralPotential}% | Risk: ${analysisResult.socialIntelligence.riskLevel}%`,
                     url: window.location.href
                   }).catch(() => {
-                    // Fallback: copy to clipboard
                     navigator.clipboard?.writeText(window.location.href);
                   });
                   hapticFeedback('light');
@@ -1471,7 +1526,6 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
 
               <motion.button
                 onClick={() => {
-                  // Reset all state
                   setInputData({
                     content: '',
                     contentType: 'news',
@@ -1487,7 +1541,9 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                   setSelectedTab('overview');
                   setChatMessages([]);
                   setChatInput('');
-                  setRealTimeData(null);
+                  stableChartDataRef.current = null;
+                  realTimeStatusRef.current = { isActive: false, lastUpdate: null };
+                  setRealTimeDisplay({ viralPotential: 0, socialMomentum: 0, isActive: false });
                   hapticFeedback('light');
                 }}
                 className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-gray-200 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
