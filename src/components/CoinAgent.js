@@ -1143,7 +1143,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
       </AnimatePresence>
 
       {/* Bottom Safe Area for Mobile */}
-      <div style={{ height: '80px' }}></div>
+      <div style={{ height: '150px' }}></div>
     </div>
   );
 }
