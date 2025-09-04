@@ -578,31 +578,12 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-purple-500/10 to-blue-500/5" />
         <div className="relative text-center">
-          <motion.div 
-            className="w-24 h-24 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4"
-            whileHover={{ scale: 1.05, rotate: 10 }}
-            animate={{ 
-              boxShadow: [
-                '0 0 20px rgba(239, 68, 68, 0.4)',
-                '0 0 30px rgba(147, 51, 234, 0.5)',
-                '0 0 40px rgba(59, 130, 246, 0.4)',
-                '0 0 20px rgba(239, 68, 68, 0.4)'
-              ]
-            }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <LuTarget className="w-12 h-12 text-white" />
-          </motion.div>
-          <h1 className="text-3xl font-black bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
-            HYPE CYCLE & SOCIAL INTELLIGENCE
-          </h1>
-          <p className="text-purple-400 font-bold text-sm uppercase tracking-wider mb-2">
+          
+          <p className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-2">
             Advanced Fusion AI Agent Platform
           </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
-            <HiLightningBolt className="w-4 h-4 text-yellow-500" />
+          <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400">
             <span>Real-time Monitoring</span>
             <span>•</span>
             <span>Hype Detection</span>
@@ -610,7 +591,6 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
             <span>Social Analysis</span>
             <span>•</span>
             <span>Risk Assessment</span>
-            <HiLightningBolt className="w-4 h-4 text-yellow-500" />
           </div>
         </div>
       </motion.div>
@@ -623,7 +603,6 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
         transition={{ delay: 0.2 }}
         onSubmit={handleAnalyze}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-800/10 to-gray-900/20" />
         <div className="relative space-y-6">
           {/* Main Content Input */}
           <div>
@@ -636,7 +615,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                 value={inputData.content}
                 onChange={(e) => setInputData(prev => ({...prev, content: e.target.value}))}
                 placeholder="🔍 Enter crypto news, social media posts, project announcements, or any content for comprehensive hype cycle and social intelligence analysis..."
-                className="w-full h-32 bg-gray-900 border-2 border-gray-700 focus:border-purple-400 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-400/20"
+                className="w-full h-32 bg-gray-900 border-2 border-gray-700 focus:border-purple-400 rounded-lg p-2 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-400/20"
                 required
                 disabled={analyzing}
               />
@@ -689,9 +668,9 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
             </label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { value: 'twitter', label: 'Twitter/X', icon: '🐦', color: 'blue' },
-                { value: 'reddit', label: 'Reddit', icon: '📱', color: 'orange' },
-                { value: 'discord', label: 'Discord', icon: '💬', color: 'indigo' },
+                { value: 'twitter', label: 'Twitter/X', icon: '🐦', color: 'green' },
+                { value: 'reddit', label: 'Reddit', icon: '📱', color: 'red' },
+                { value: 'discord', label: 'Discord', icon: '💬', color: 'yellow' },
                 { value: 'telegram', label: 'Telegram', icon: '✈️', color: 'cyan' }
               ].map((platform) => (
                 <label key={platform.value} className="flex items-center cursor-pointer">
@@ -707,10 +686,10 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                     }}
                     className="sr-only"
                   />
-                  <div className={`flex items-center gap-2 w-full rounded-lg border-2 transition-all ${
+                  <div className={`flex items-center gap-2 w-full rounded-lg border transition-all ${
                     inputData.platforms.includes(platform.value)
-                      ? `border-${platform.color}-400 bg-${platform.color}-400/10 text-white` 
-                      : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-500'
+                      ? `border-${platform.color}-500 bg-${platform.color}-400/10 text-white` 
+                      : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-green-500'
                   }`} style={{ padding: '12px' }}>
                     <span className="text-lg">{platform.icon}</span>
                     <span className="font-semibold text-sm">{platform.label}</span>
@@ -806,7 +785,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
           {/* Analyze Button */}
           <motion.button
             type="submit"
-            className="w-full bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 hover:from-red-500 hover:via-purple-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+            className="w-full glass-button b0 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
             disabled={analyzing || !inputData.content.trim()}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -815,18 +794,11 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
             <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
             {analyzing ? (
               <>
-                <motion.div
-                  className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
                 <span className="text-lg">Analyzing Hype Cycle & Social Intelligence...</span>
               </>
             ) : (
               <>
-                <LuTarget className="w-6 h-6" />
                 <span className="text-lg">Launch Fusion Analysis</span>
-                <HiLightningBolt className="w-5 h-5" />
               </>
             )}
           </motion.button>
