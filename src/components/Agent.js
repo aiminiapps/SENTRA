@@ -918,7 +918,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
 
             {/* Advanced Tab Navigation */}
             <div className="glass">
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-5 gap-1.5">
                 {[
                   { id: 'overview', label: 'Overview', icon: HiEye, color: 'cyan' },
                   { id: 'charts', label: 'Charts', icon: HiChartBar, color: 'purple' },
@@ -934,10 +934,10 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                         setSelectedTab(tab.id);
                         hapticFeedback('light');
                       }}
-                      className={`rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all ${
+                      className={`rounded-xl text-xs font-semibold flex flex-col items-center gap-2 transition-all ${
                         selectedTab === tab.id 
-                          ? `bg-${tab.color}-600 text-white shadow-lg` 
-                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                          ? `bg-${tab.color}-600 glass-button-alert text-white shadow-lg` 
+                          : 'bg-gray-800 text-gray-400 glass-button-secondary hover:bg-gray-700 hover:text-white'
                       }`}
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
