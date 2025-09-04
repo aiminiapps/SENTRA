@@ -889,25 +889,25 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                 {/* Key Metrics Overview */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
-                    <div className="text-sm font-black text-purple-400">
+                    <div className="text-sm font-bold text-purple-400">
                       {analysisResult.socialIntelligence.viralPotential}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">VIRAL</div>
                   </div>
                   <div className="text-center w-fit glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
-                    <div className="text-sm font-black text-blue-400">
+                    <div className="text-sm font-bold text-blue-400">
                       {analysisResult.socialIntelligence.socialMomentum}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">MOMENTUM</div>
                   </div>
                   {/* <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
-                    <div className="text-sm font-black text-yellow-400">
+                    <div className="text-sm font-bold text-yellow-400">
                       {analysisResult.socialIntelligence.riskLevel}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">RISK</div>
                   </div> */}
                   <div className="text-center w-fit glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
-                    <div className="text-sm font-black text-green-400">
+                    <div className="text-sm font-bold text-green-400">
                       {analysisResult.socialIntelligence.influencerEngagement}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">INFLUENCE</div>
@@ -970,13 +970,13 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '16px' }}>
-                        <div className="text-2xl font-black text-red-400 mb-2">
+                        <div className="text-xl font-bold text-red-400 mb-2">
                           {analysisResult.socialIntelligence.hypeCycleStage}
                         </div>
                         <div className="text-xs text-gray-400 font-bold">CURRENT STAGE</div>
                       </div>
                       <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '16px' }}>
-                        <div className="text-2xl font-black text-yellow-400 mb-2">
+                        <div className="text-xl font-bold text-yellow-400 mb-2">
                           {analysisResult.socialIntelligence.peakPrediction}h
                         </div>
                         <div className="text-xs text-gray-400 font-bold">PEAK ETA</div>
@@ -1086,15 +1086,15 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                       Platform Intelligence
                     </h3>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {Object.entries(analysisResult.socialIntelligence.platformData).map(([platform, data]) => (
-                        <div key={platform} className="bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+                        <div key={platform} className="bg-gray-900 glass-light rounded-xl" style={{ padding: '16px' }}>
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-bold text-white capitalize">{platform}</h4>
+                            <h4 className="text-lg font-semibold text-white capitalize">{platform}</h4>
+                          </div>
                             <div className="text-xs text-gray-400">
                               Sentiment: <span className="text-purple-400 font-bold">{data.sentiment || data.activity}%</span>
                             </div>
-                          </div>
                           <div className="space-y-2 text-sm">
                             {platform === 'twitter' && (
                               <>
@@ -1180,7 +1180,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                       {analysisResult.socialIntelligence.topInfluencers.map((influencer, index) => (
                         <div key={index} className="flex items-center justify-between bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
                           <div className="flex items-center gap-3">
-                            <div className="text-2xl font-bold text-purple-400">#{index + 1}</div>
+                            <div className="text-xl font-bold text-purple-400">#{index + 1}</div>
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="text-white font-bold">{influencer.name}</span>
@@ -1215,7 +1215,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                     <div className="flex items-center gap-3 mb-6">
                       <LuBrainCircuit className="w-8 h-8 text-green-400" />
                       <div>
-                        <h3 className="text-2xl font-bold text-green-400">SENTRA Fusion Analysis</h3>
+                        <h3 className="text-xl font-bold text-green-400">SENTRA Fusion Analysis</h3>
                         <p className="text-sm text-gray-400">Comprehensive Hype Cycle & Social Intelligence Report</p>
                       </div>
                     </div>
@@ -1226,7 +1226,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                         rehypePlugins={[rehypeRaw, rehypeSanitize]}
                         components={{
                           h1: ({ children, ...props }) => (
-                            <h1 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2" {...props}>
+                            <h1 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2" {...props}>
                               <HiFire className="w-6 h-6" />
                               {children}
                             </h1>
@@ -1334,7 +1334,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                     <div className="flex items-center gap-3 mb-4">
                       <HiOutlineChatAlt className="w-8 h-8 text-pink-400" />
                       <div>
-                        <h3 className="text-2xl font-bold text-pink-400">Chat with SENTRA AI</h3>
+                        <h3 className="text-xl font-bold text-pink-400">Chat with SENTRA AI</h3>
                         <p className="text-sm text-gray-400">Ask questions about your analysis results</p>
                       </div>
                     </div>
