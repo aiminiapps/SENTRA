@@ -815,12 +815,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <motion.div 
-                  className="w-3 h-3 bg-green-500 rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <span className="text-green-400 font-bold text-sm">LIVE MONITORING</span>
+                <span className="text-green-400 font-semibold text-sm">LIVE</span>
               </div>
               <div className="text-sm text-gray-400">
                 Viral Potential: <span className="text-purple-400 font-bold">{Math.round(realTimeDisplay.viralPotential)}%</span>
@@ -857,7 +852,7 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
           <div className="flex items-center gap-3">
             <BsExclamationTriangle className="w-8 h-8 text-red-400 flex-shrink-0" />
             <div>
-              <h4 className="text-red-400 font-bold text-lg">Analysis Error</h4>
+              <h4 className="text-red-400 font-semibold text-lg">Analysis Error</h4>
               <p className="text-red-300 text-sm">{error}</p>
             </div>
           </div>
@@ -874,13 +869,12 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-purple-500/10 to-blue-500/5" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <HiShieldCheck className="w-8 h-8 text-green-400" />
+                    <HiShieldCheck className="w-8 h-8 scale-125 text-green-400" />
                     <div>
-                      <h2 className="text-2xl font-black text-green-400">Analysis Complete</h2>
+                      <h2 className="text-lg font-semibold text-green-400">Analysis Complete</h2>
                       <p className="text-sm text-gray-400">
                         ID: {analysisResult.analysisId} • Confidence: {analysisResult.confidence}%
                       </p>
@@ -893,27 +887,27 @@ ${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleS
                 </div>
 
                 {/* Key Metrics Overview */}
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
-                    <div className="text-lg font-black text-purple-400">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
+                    <div className="text-sm font-black text-purple-400">
                       {analysisResult.socialIntelligence.viralPotential}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">VIRAL</div>
                   </div>
-                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
-                    <div className="text-lg font-black text-blue-400">
+                  <div className="text-center w-fit glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
+                    <div className="text-sm font-black text-blue-400">
                       {analysisResult.socialIntelligence.socialMomentum}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">MOMENTUM</div>
                   </div>
-                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
-                    <div className="text-lg font-black text-yellow-400">
+                  {/* <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
+                    <div className="text-sm font-black text-yellow-400">
                       {analysisResult.socialIntelligence.riskLevel}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">RISK</div>
-                  </div>
-                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
-                    <div className="text-lg font-black text-green-400">
+                  </div> */}
+                  <div className="text-center w-fit glass-light bg-gray-900 rounded-xl" style={{ padding: '9px' }}>
+                    <div className="text-sm font-black text-green-400">
                       {analysisResult.socialIntelligence.influencerEngagement}/100
                     </div>
                     <div className="text-xs text-gray-400 font-bold">INFLUENCE</div>
