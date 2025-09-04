@@ -596,7 +596,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                   <div className="flex items-center gap-3">
                     <HiBadgeCheck className="w-8 h-8 text-emerald-400" />
                     <div>
-                      <h2 className="text-2xl font-black text-emerald-400">Analysis Complete</h2>
+                      <h2 className="text-xl font-semibold text-emerald-400">Analysis Complete</h2>
                       <p className="text-sm text-gray-400">Confidence: {analysisResult.confidence}%</p>
                     </div>
                   </div>
@@ -675,10 +675,10 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                         setSelectedTab(tab.id);
                         hapticFeedback('light');
                       }}
-                      className={`rounded-xl text-sm font-bold flex flex-col items-center gap-2 transition-all ${
+                      className={`rounded-xl text-sm font-semibold flex flex-col items-center gap-2 transition-all ${
                         selectedTab === tab.id 
-                          ? `bg-${tab.color}-600 text-white shadow-lg` 
-                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                          ? `bg-${tab.color}-600 glass-button-alert text-white shadow-lg` 
+                          : 'bg-gray-800 text-gray-400 glass-button-secondary hover:bg-gray-700 hover:text-white'
                       }`}
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -1050,14 +1050,14 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                       {/* Source Reliability Assessment */}
                       {analysisResult.scores.sourceReliability && (
                         <div className="bg-gray-800 rounded-xl mt-6" style={{ padding: '20px' }}>
-                          <h4 className="text-lg font-bold text-blue-400 mb-3 flex items-center gap-2">
+                          <h4 className="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">
                             <HiBadgeCheck className="w-5 h-5" />
                             Source Reliability Assessment
                           </h4>
                           <div className="flex items-center justify-between">
                             <span className="text-base font-semibold text-gray-300">{analysisResult.source}</span>
                             <div className="flex items-center gap-3">
-                              <div className={`text-2xl font-bold ${getScoreColor(analysisResult.scores.sourceReliability)}`}>
+                              <div className={`text-2xl font-semibold ${getScoreColor(analysisResult.scores.sourceReliability)}`}>
                                 {analysisResult.scores.sourceReliability}/100
                               </div>
                               <HiShieldCheck className={`w-6 h-6 ${getScoreColor(analysisResult.scores.sourceReliability)}`} />
@@ -1068,11 +1068,11 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
 
                       {/* Analysis Metadata */}
                       <div className="flex items-center justify-between text-sm text-gray-400 mt-6 pt-4 border-t border-gray-700">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1 text-xs">
                           <HiClock className="w-4 h-4" />
                           <span>Analyzed: {analysisResult.timestamp.toLocaleString()}</span>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1 text-xs">
                           <HiDatabase className="w-4 h-4" />
                           <span>Words: {analysisResult.analysis.split(' ').length}</span>
                         </div>

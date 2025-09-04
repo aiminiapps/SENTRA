@@ -338,7 +338,7 @@ body::before {
 .glass-button-alert:hover {
   background: 
     linear-gradient(135deg, 
-      #FFE066 0%, 
+      #ffe066a4 0%, 
       var(--sentra-gold-spark) 100%
     );
   box-shadow: 
