@@ -1108,7 +1108,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                   
                   hapticFeedback('medium');
                 }}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ padding: '16px' }}
@@ -1129,7 +1129,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                   setUserRating(0);
                   hapticFeedback('light');
                 }}
-                className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-gray-200 font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
+                className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-gray-200 font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ padding: '16px' }}
