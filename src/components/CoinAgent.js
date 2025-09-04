@@ -492,7 +492,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                 value={newsContent}
                 onChange={(e) => setNewsContent(e.target.value)}
                 placeholder="📰 Paste your crypto news, market analysis, project updates, or any cryptocurrency-related content here for comprehensive AI intelligence analysis..."
-                className="w-full h-40 bg-gray-900 border-2 border-gray-700 focus:border-cyan-400 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
+                className="w-full h-40 bg-gray-900 border-2 border-gray-700 focus:border-cyan-400 rounded-lg p-2 text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
                 disabled={analyzing}
                 required
               />
@@ -514,7 +514,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                 value={sourceOptional}
                 onChange={(e) => setSourceOptional(e.target.value)}
                 placeholder="e.g., CoinDesk, CoinTelegraph, Twitter, Bloomberg..."
-                className="w-full bg-gray-900 border-2 border-gray-700 focus:border-purple-400 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
+                className="w-full bg-gray-900 border-2 border-gray-700 focus:border-purple-400 rounded-lg p-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
                 disabled={analyzing}
               />
             </div>
@@ -528,7 +528,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
                 type="date"
                 value={newsDate}
                 onChange={(e) => setNewsDate(e.target.value)}
-                className="w-full bg-gray-900 border-2 border-gray-700 focus:border-pink-400 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-400/20 transition-all duration-300"
+                className="w-full bg-gray-900 border-2 border-gray-700 focus:border-pink-400 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-400/20 transition-all duration-300"
                 disabled={analyzing}
               />
             </div>
@@ -536,7 +536,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
 
           <motion.button
             type="submit"
-            className="w-full bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 hover:from-cyan-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+            className="w-full glass-button bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 hover:from-cyan-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
             disabled={analyzing || !newsContent.trim()}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -555,9 +555,7 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
               </>
             ) : (
               <>
-                <LuBrainCircuit className="w-6 h-6" />
                 <span className="text-lg">Launch SENTRA AI Analysis</span>
-                <HiSparkles className="w-5 h-5" />
               </>
             )}
           </motion.button>
