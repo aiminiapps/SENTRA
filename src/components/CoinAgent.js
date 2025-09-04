@@ -51,6 +51,7 @@ import {
 } from 'react-icons/hi';
 import { LuBrainCircuit } from 'react-icons/lu';
 import { BsExclamationTriangle } from "react-icons/bs";
+import Image from 'next/image';
 
 // Register ChartJS components
 ChartJS.register(
@@ -453,22 +454,20 @@ Include bullet points, emphasis, and clear structure. Keep comprehensive but und
             }}
             transition={{ duration: 4, repeat: Infinity }}
           >
-            <LuBrainCircuit className="w-10 h-10 text-white" />
+            <Image src='/agent/agentlogo.png' alt='logo' width={80} height={80}/>
           </motion.div>
-          <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-xl font-black text-cyan-400 mb-2">
             SENTRA NEWS INTELLIGENCE
           </h1>
-          <p className="text-cyan-400 font-bold text-sm uppercase tracking-wider mb-2">
+          <p className="text-white/80 font-semibold text-sm tracking-wider mb-2">
             Advanced AI-Powered News Analysis Platform
           </p>
           <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
-            <HiSparkles className="w-4 h-4 text-yellow-500" />
             <span>Real-time Analysis</span>
             <span>•</span>
             <span>Social Intelligence</span>
             <span>•</span>
             <span>Risk Assessment</span>
-            <HiSparkles className="w-4 h-4 text-yellow-500" />
           </div>
         </div>
       </motion.div>
