@@ -323,38 +323,16 @@ Keep response under 200 words. Use emojis. Focus on actionable advice.`;
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, type: "spring" }}
       >
-        <div className="p-6 bg-gradient-to-r from-cyan-500/20 via-purple-500/15 to-blue-500/20 rounded-2xl">
+        <div className="">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <motion.div 
-                className="w-14 h-14 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl"
-                whileHover={{ scale: 1.05, rotate: 5 }}
-              >
-                <HiOutlineShieldCheck className="w-7 h-7 text-white" />
-              </motion.div>
               <div>
-                <h1 className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-xl font-semibold text-cyan-400">
                   SENTRA TRUST CENTER
                 </h1>
                 <p className="text-sm text-gray-400">AI-Powered Investment Intelligence</p>
               </div>
             </div>
-            
-            <motion.button
-              onClick={handleRefresh}
-              className="glass-button flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              disabled={refreshing}
-            >
-              <motion.div
-                animate={{ rotate: refreshing ? 360 : 0 }}
-                transition={{ duration: 1, repeat: refreshing ? Infinity : 0 }}
-              >
-                <HiRefresh className="w-4 h-4" />
-              </motion.div>
-              <span className="font-bold text-sm">Sync</span>
-            </motion.button>
           </div>
 
           {/* Filter System */}
