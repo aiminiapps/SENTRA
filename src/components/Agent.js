@@ -1,1013 +1,1510 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  HiArrowLeft,
-  HiOutlineChartBar,
-  HiOutlineDocumentAdd,
-  HiOutlineUsers,
-  HiOutlineGlobeAlt,
-  HiOutlineShieldCheck,
-  HiSparkles,
-  HiPlay,
-  HiOutlineDownload,
-  HiOutlineClipboard,
-  HiOutlineStar,
-  HiRefresh,
-  HiOutlineTrendingUp,
-  HiOutlineTrendingDown,
-  HiOutlineFire,
-  HiOutlineBell,
-  HiOutlineClock,
-  HiOutlineCalendar,
-  HiOutlineBriefcase,
-  HiOutlineChatAlt,
-  HiOutlineUser,
-  HiOutlineExclamation,
-  HiOutlineLightningBolt,
-  HiOutlineHeart,
-  HiOutlineEye,
-  HiOutlineChartPie
-} from 'react-icons/hi';
-import { LuBrainCircuit } from "react-icons/lu";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import { 
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  RadialLinearScale,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line, Bar, Radar, Doughnut, Scatter } from 'react-chartjs-2';
+import { 
+  HiTrendingUp, 
+  HiTrendingDown,
+  HiLightningBolt,
+  HiFire,
+  HiEye,
+  HiUsers,
+  HiChat,
+  HiHeart,
+  HiShare,
+  HiRefresh,
+  HiSparkles,
+  HiShieldCheck,
+  HiClock,
+  HiGlobe,
+  HiChartBar,
+  HiCollection,
+  HiBeaker,
+  HiOutlineAdjustments,
+  HiOutlineChatAlt,
+  HiOutlineSearch,
+  HiOutlineFilter,
+  HiOutlineMicrophone,
+  HiOutlineLocationMarker,
+  HiOutlineCalendar,
+  HiOutlineTag,
+  HiOutlineUserGroup,
+  HiOutlineHashtag
+} from 'react-icons/hi';
+import { LuBrainCircuit, LuTarget, LuTrendingUp } from 'react-icons/lu';
+import { BsExclamationTriangle } from "react-icons/bs";
+import { MdOutlineRadar } from "react-icons/md";
 
-const quantoraAgents = [
-  {
-    id: 'tokenomics_ai',
-    name: 'TokenMaster AI',
-    subtitle: 'Supply & Economics Expert',
-    symbol: 'TM',
-    description: 'Advanced tokenomics analysis with dynamic modeling, inflation forecasting, and sustainability scoring',
-    icon: HiOutlineChartBar,
-    color: 'lime-400',
-    gradient: 'from-lime-400 to-green-500',
-    performance: 95,
-    winRate: 92,
-    responseTime: '0.3s',
-    users: 54000,
-    energyLevel: 89,
-    successRate: 94,
-    totalAnalyses: 12500,
-    badges: ['AI-Powered', 'Real-Time', 'Expert Level'],
-    uniqueFeature: 'Interactive Supply-Demand Graph with Live Predictions',
-    keyMetrics: {
-      accuracy: '95%',
-      speed: '0.3s',
-      uptime: '99.9%',
-      satisfaction: '4.8/5'
-    },
-    specializations: [
-      { name: 'Inflation Modeling', icon: HiOutlineTrendingUp, progress: 95 },
-      { name: 'Supply Analytics', icon: HiOutlineChartPie, progress: 92 },
-      { name: 'Burn Analysis', icon: HiOutlineFire, progress: 88 },
-      { name: 'Sustainability Score', icon: HiOutlineShieldCheck, progress: 90 }
-    ],
-    recentActivity: [
-      'Analyzed ETH supply changes',
-      'Generated BTC inflation report',
-      'Tracked SOL burn events'
-    ]
-  },
-  {
-    id: 'vesting_ai',
-    name: 'VestGuard AI',
-    subtitle: 'Unlock Intelligence Expert',
-    symbol: 'VG',
-    description: 'Predictive vesting analysis with automated alerts, timeline mapping, and impact forecasting',
-    icon: HiOutlineDocumentAdd,
-    color: 'green-400',
-    gradient: 'from-green-400 to-cyan-500',
-    performance: 92,
-    winRate: 90,
-    responseTime: '0.2s',
-    users: 42000,
-    energyLevel: 95,
-    successRate: 91,
-    totalAnalyses: 8200,
-    badges: ['Predictive', 'Alert System', 'Timeline Expert'],
-    uniqueFeature: 'Advanced Timeline with Impact Simulation',
-    keyMetrics: {
-      accuracy: '92%',
-      speed: '0.2s',
-      uptime: '99.7%',
-      satisfaction: '4.7/5'
-    },
-    specializations: [
-      { name: 'Unlock Tracking', icon: HiOutlineCalendar, progress: 94 },
-      { name: 'Impact Prediction', icon: HiOutlineTrendingUp, progress: 89 },
-      { name: 'Alert System', icon: HiOutlineBell, progress: 96 },
-      { name: 'Timeline Analysis', icon: HiOutlineClock, progress: 91 }
-    ],
-    recentActivity: [
-      'Predicted UNI unlock impact',
-      'Set APE vesting alerts',
-      'Mapped DYDX schedule'
-    ]
-  },
-  {
-    id: 'whale_ai',
-    name: 'WhaleWatch AI',
-    subtitle: 'Smart Money Tracker',
-    symbol: 'WW',
-    description: 'Real-time whale monitoring with institutional tracking, fund flow analysis, and smart alerts',
-    icon: HiOutlineUsers,
-    color: 'cyan-400',
-    gradient: 'from-cyan-400 to-violet-500',
-    performance: 96,
-    winRate: 93,
-    responseTime: '0.1s',
-    users: 60000,
-    energyLevel: 87,
-    successRate: 96,
-    totalAnalyses: 25000,
-    badges: ['Smart Money', 'Real-Time', 'Institutional'],
-    uniqueFeature: 'Interactive Whale Heatmap with Live Tracking',
-    keyMetrics: {
-      accuracy: '96%',
-      speed: '0.1s',
-      uptime: '99.8%',
-      satisfaction: '4.9/5'
-    },
-    specializations: [
-      { name: 'Whale Movements', icon: HiOutlineTrendingUp, progress: 97 },
-      { name: 'Fund Flows', icon: HiOutlineBriefcase, progress: 94 },
-      { name: 'Wallet Clustering', icon: HiOutlineUsers, progress: 91 },
-      { name: 'Risk Alerts', icon: HiOutlineBell, progress: 93 }
-    ],
-    recentActivity: [
-      'Tracked BTC whale activity',
-      'Detected ETH accumulation',
-      'Alert: Major SOL transfer'
-    ]
-  },
-  {
-    id: 'sentiment_ai',
-    name: 'PulseAI Engine',
-    subtitle: 'Market Psychology Expert',
-    symbol: 'PA',
-    description: 'Advanced sentiment analysis with social monitoring, trend detection, and viral content tracking',
-    icon: HiOutlineGlobeAlt,
-    color: 'violet-400',
-    gradient: 'from-violet-400 to-pink-500',
-    performance: 89,
-    winRate: 85,
-    responseTime: '0.4s',
-    users: 50000,
-    energyLevel: 92,
-    successRate: 89,
-    totalAnalyses: 18000,
-    badges: ['Sentiment AI', 'Social Intel', 'Trend Spotter'],
-    uniqueFeature: 'Real-Time Mood Index with Viral Content Tracking',
-    keyMetrics: {
-      accuracy: '89%',
-      speed: '0.4s',
-      uptime: '99.2%',
-      satisfaction: '4.6/5'
-    },
-    specializations: [
-      { name: 'Social Sentiment', icon: HiOutlineChatAlt, progress: 92 },
-      { name: 'Trend Detection', icon: HiOutlineTrendingUp, progress: 87 },
-      { name: 'Viral Tracking', icon: HiOutlineFire, progress: 85 },
-      { name: 'Influencer Impact', icon: HiOutlineUser, progress: 90 }
-    ],
-    recentActivity: [
-      'Detected BTC bullish sentiment',
-      'Viral meme coin analysis',
-      'Tracked influencer impact'
-    ]
-  },
-  {
-    id: 'risk_ai',
-    name: 'RiskShield AI',
-    subtitle: 'Comprehensive Risk Expert',
-    symbol: 'RS',
-    description: 'Multi-dimensional risk assessment with scenario simulation, compliance monitoring, and mitigation strategies',
-    icon: HiOutlineShieldCheck,
-    color: 'emerald-600',
-    gradient: 'from-emerald-600 to-green-400',
-    performance: 93,
-    winRate: 90,
-    responseTime: '0.5s',
-    users: 38000,
-    energyLevel: 88,
-    successRate: 93,
-    totalAnalyses: 9500,
-    badges: ['Risk Expert', 'Compliance', 'Security Pro'],
-    uniqueFeature: 'Dynamic Risk Scenarios with AI Mitigation Strategies',
-    keyMetrics: {
-      accuracy: '93%',
-      speed: '0.5s',
-      uptime: '99.5%',
-      satisfaction: '4.8/5'
-    },
-    specializations: [
-      { name: 'Risk Scoring', icon: HiOutlineExclamation, progress: 95 },
-      { name: 'Security Audits', icon: HiOutlineShieldCheck, progress: 91 },
-      { name: 'Volatility Index', icon: HiOutlineTrendingDown, progress: 89 },
-      { name: 'Compliance Check', icon: HiOutlineBell, progress: 94 }
-    ],
-    recentActivity: [
-      'Risk assessment for DeFi',
-      'Compliance alert: New reg',
-      'Security audit complete'
-    ]
-  }
-];
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  RadialLinearScale,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
-const systemPrompts = {
-  'tokenomics_ai': {
-    role: "Advanced Tokenomics Research Specialist",
-    description: "Expert AI agent specializing in comprehensive token economics analysis, supply dynamics, inflation modeling, and economic sustainability assessment.",
-    capabilities: [
-      "Dynamic Supply Modeling & Forecasting",
-      "Inflation Rate Analysis & Predictions", 
-      "Token Burn Impact Assessment",
-      "Economic Sustainability Scoring",
-      "Historical Trend Analysis",
-      "Price Impact Correlation Studies"
-    ],
-    greeting: "🤖 **TokenMaster AI Activated**\n\nI'm your specialized tokenomics research expert. I analyze supply dynamics, inflation schedules, burn mechanisms, and economic fundamentals to provide institutional-grade tokenomics intelligence.\n\n**Core Capabilities:**\n• Supply & demand modeling with live predictions\n• Inflation forecasting with 95% accuracy\n• Token burn impact analysis\n• Economic sustainability assessment\n\n**Unique Feature:** Interactive supply-demand graphs with real-time market predictions\n\nWhat tokenomics research shall we dive into today?"
-  },
-  'vesting_ai': {
-    role: "Vesting & Unlock Intelligence Specialist",
-    description: "Expert AI focused on unlock schedules, vesting events, and their predictive market impact analysis with automated alert systems.",
-    capabilities: [
-      "Unlock Schedule Mapping & Tracking",
-      "Vesting Event Impact Prediction",
-      "Market Correlation Analysis",
-      "Automated Alert Generation",
-      "Timeline Visualization",
-      "Supply Shock Assessment"
-    ],
-    greeting: "🤖 **VestGuard AI Online**\n\nI specialize in unlock schedule intelligence and vesting event analysis. My predictive models forecast market impact from upcoming token releases with 92% accuracy.\n\n**Intelligence Capabilities:**\n• Advanced unlock timeline mapping\n• Impact simulation with scenario analysis\n• Custom alert system with smart notifications\n• Multi-chain vesting tracking\n\n**Unique Feature:** Interactive timeline with impact simulation and automated alerts\n\nWhich project's unlock schedule shall we analyze?"
-  },
-  'whale_ai': {
-    role: "Whale & Smart Money Intelligence Specialist", 
-    description: "Advanced tracking agent specializing in whale movements, institutional activities, and smart money flow analysis with real-time monitoring.",
-    capabilities: [
-      "Real-time Whale Movement Tracking",
-      "Institutional Portfolio Analysis",
-      "Smart Money Flow Detection",
-      "Wallet Clustering & Classification",
-      "Fund Flow Intelligence",
-      "Risk Alert Generation"
-    ],
-    greeting: "🤖 **WhaleWatch AI Engaged**\n\nI track whale movements, institutional activities, and smart money flows across the crypto ecosystem with 96% accuracy. My intelligence network monitors large holders for strategic insights.\n\n**Monitoring Capabilities:**\n• Interactive whale heatmap with live tracking\n• Institutional wallet clustering\n• Smart money flow detection\n• Custom risk alerts\n\n**Unique Feature:** Real-time whale heatmap with movement predictions and alert system\n\nWhat smart money intelligence do you need?"
-  },
-  'sentiment_ai': {
-    role: "Market Psychology & Sentiment Intelligence Specialist",
-    description: "AI agent specialized in social sentiment analysis, community health monitoring, trend detection, and viral content tracking.",
-    capabilities: [
-      "Real-time Social Sentiment Analysis",
-      "Community Health Assessment", 
-      "Trend Detection & Prediction",
-      "Viral Content Tracking",
-      "Influencer Impact Analysis",
-      "Market Mood Indexing"
-    ],
-    greeting: "🤖 **PulseAI Engine Monitoring**\n\nI analyze market psychology through social sentiment, community health, and trend detection. My algorithms process millions of social signals for market intelligence.\n\n**Sentiment Capabilities:**\n• Real-time mood index with 89% accuracy\n• Viral content tracking and analysis\n• Influencer impact measurement\n• Community health assessment\n\n**Unique Feature:** Live sentiment index with viral content tracking and trend predictions\n\nWhich project's social pulse shall we analyze?"
-  },
-  'risk_ai': {
-    role: "Comprehensive Risk Assessment Specialist",
-    description: "Advanced risk analysis agent covering technical, market, regulatory, and operational risks with scenario simulation and mitigation strategies.",
-    capabilities: [
-      "Multi-dimensional Risk Assessment",
-      "Dynamic Risk Scenario Simulation",
-      "Regulatory Compliance Monitoring", 
-      "Security Audit Intelligence",
-      "Volatility Risk Analysis",
-      "Mitigation Strategy Generation"
-    ],
-    greeting: "🤖 **RiskShield AI Activated**\n\nI provide comprehensive risk assessment across all vectors: technical, market, regulatory, and operational. My analysis includes scenario simulation and AI-generated mitigation strategies.\n\n**Risk Analysis:**\n• Dynamic risk scoring with 93% accuracy\n• Scenario simulation and impact analysis\n• Real-time compliance monitoring\n• Security audit intelligence\n\n**Unique Feature:** Dynamic risk scenarios with AI-powered mitigation strategy recommendations\n\nWhat risk assessment do you require?"
-  }
-};
-
-export default function QuantoraEnhancedAgentHub() {
-  const [selectedAgent, setSelectedAgent] = useState(null);
-  const [agentsData, setAgentsData] = useState([]);
-  const [conversation, setConversation] = useState([]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [researchCredits, setResearchCredits] = useState(5);
-  const [showCreditPopup, setShowCreditPopup] = useState(false);
+export default function SentraHypeCycleSocialIntelligenceAgent() {
+  // Core States
+  const [inputData, setInputData] = useState({
+    content: '',
+    contentType: 'news',
+    platforms: ['twitter', 'reddit'],
+    analysisDepth: 'comprehensive',
+    timeframe: '24h',
+    focusArea: 'general',
+    location: 'global',
+    language: 'en'
+  });
+  
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [selectedTab, setSelectedTab] = useState('overview');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
   const [isWebApp, setIsWebApp] = useState(false);
-  const [favorites, setFavorites] = useState(new Set());
-  const [expandedAgent, setExpandedAgent] = useState(null);
-  const inputRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const [realTimeData, setRealTimeData] = useState(null);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsWebApp(window.Telegram?.WebApp ? true : false);
     }
-    setAgentsData(quantoraAgents);
   }, []);
 
-  const triggerHaptic = (type = 'impact', style = 'medium') => {
+  const hapticFeedback = useCallback((type = 'light') => {
     if (isWebApp && window.Telegram?.WebApp?.HapticFeedback) {
-      if (type === 'impact') {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
-      } else if (type === 'notification') {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred(style);
+      window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
+    }
+  }, [isWebApp]);
+
+  // Generate realistic social intelligence data
+  const generateSocialIntelligenceData = () => ({
+    hypeCycleStage: ['Early Formation', 'Rising Hype', 'Peak Hype', 'Decline', 'Stabilization'][Math.floor(Math.random() * 5)],
+    viralPotential: Math.floor(Math.random() * 40) + 60,
+    influencerEngagement: Math.floor(Math.random() * 50) + 50,
+    socialMomentum: Math.floor(Math.random() * 60) + 40,
+    peakPrediction: Math.floor(Math.random() * 72) + 6, // 6-78 hours
+    riskLevel: Math.floor(Math.random() * 30) + 40,
+    platformData: {
+      twitter: {
+        mentions: Math.floor(Math.random() * 50000) + 10000,
+        sentiment: Math.floor(Math.random() * 40) + 30,
+        influencers: Math.floor(Math.random() * 200) + 50,
+        hashtags: ['#crypto', '#bullrun', '#altseason', '#DeFi', '#Web3'].slice(0, Math.floor(Math.random() * 3) + 2)
+      },
+      reddit: {
+        posts: Math.floor(Math.random() * 1000) + 200,
+        upvotes: Math.floor(Math.random() * 10000) + 2000,
+        comments: Math.floor(Math.random() * 5000) + 1000,
+        sentiment: Math.floor(Math.random() * 50) + 25
+      },
+      discord: {
+        mentions: Math.floor(Math.random() * 5000) + 1000,
+        servers: Math.floor(Math.random() * 100) + 20,
+        activity: Math.floor(Math.random() * 80) + 20
+      },
+      telegram: {
+        channels: Math.floor(Math.random() * 50) + 10,
+        messages: Math.floor(Math.random() * 10000) + 2000,
+        views: Math.floor(Math.random() * 100000) + 20000
       }
-    }
-  };
+    },
+    timeSeriesData: {
+      hype: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
+      social: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
+      influencer: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
+      risk: Array.from({length: 24}, () => Math.floor(Math.random() * 100))
+    },
+    topInfluencers: [
+      { name: 'CryptoGuru_Pro', followers: '2.3M', impact: 95, verified: true },
+      { name: 'DeFiWhale_', followers: '1.8M', impact: 88, verified: true },
+      { name: 'BlockchainBuzz', followers: '956K', impact: 82, verified: false },
+      { name: 'AltcoinDaily', followers: '743K', impact: 79, verified: true },
+      { name: 'CryptoInsider', followers: '521K', impact: 71, verified: false }
+    ],
+    viralPosts: [
+      { platform: 'Twitter', content: 'BREAKING: Major institutional adoption announcement...', engagement: 45000, viralScore: 98 },
+      { platform: 'Reddit', content: 'Technical analysis shows bullish breakout pattern...', engagement: 12000, viralScore: 85 },
+      { platform: 'Discord', content: 'Insider info: Big partnership reveal tomorrow...', engagement: 8500, viralScore: 76 }
+    ]
+  });
 
-  const toggleFavorite = (agentId, e) => {
-    e.stopPropagation();
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(agentId)) {
-      newFavorites.delete(agentId);
-    } else {
-      newFavorites.add(agentId);
-    }
-    setFavorites(newFavorites);
-    triggerHaptic('impact', 'light');
-  };
+  // Handle comprehensive analysis
+  const handleAnalyze = async (e) => {
+    e.preventDefault();
+    if (!inputData.content.trim() || analyzing) return;
 
-  const handleAgentSelect = (agent) => {
-    if (researchCredits <= 0) {
-      setShowCreditPopup(true);
-      triggerHaptic('notification', 'error');
-      return;
-    }
-
-    setSelectedAgent(agent);
-    setResearchCredits(prev => Math.max(0, prev - 1));
-    triggerHaptic('impact', 'medium');
-    
-    const prompt = systemPrompts[agent.id];
-    setConversation([{
-      role: 'assistant',
-      content: prompt.greeting,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      id: `welcome_${Date.now()}`
-    }]);
-  };
-
-  const handleSendMessage = async (e) => {
-    e?.preventDefault();
-    if (!input.trim() || loading) return;
-
-    const userMessage = { 
-      role: 'user', 
-      content: input,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      id: `user_${Date.now()}`
-    };
-
-    const updatedConversation = [...conversation, userMessage];
-    setConversation(updatedConversation);
-    setInput('');
-    setLoading(true);
-    setIsTyping(true);
-    triggerHaptic('impact', 'light');
+    setAnalyzing(true);
+    setError(null);
+    setAnalysisResult(null);
+    hapticFeedback('medium');
 
     try {
-      const agent = selectedAgent;
-      const systemPrompt = `You are ${agent.name}, the ${systemPrompts[agent.id].role} in the Quantora AI Research Network.
+      const systemPrompt = `You are SENTRA AI, the world's most advanced Hype Cycle & Social Intelligence fusion agent. You combine hype cycle detection with comprehensive social media monitoring.
 
-🤖 **AGENT PROFILE:**
-- Name: ${agent.name} (${agent.symbol})
-- Specialization: ${systemPrompts[agent.id].description}
-- Core Capabilities: ${systemPrompts[agent.id].capabilities.join(' | ')}
-- Performance: ${agent.performance}% accuracy
-- Response Speed: ${agent.responseTime}
-- Success Rate: ${agent.successRate}%
+ANALYSIS PARAMETERS:
+- Content Type: ${inputData.contentType}
+- Platforms: ${inputData.platforms.join(', ')}
+- Analysis Depth: ${inputData.analysisDepth}
+- Timeframe: ${inputData.timeframe}
+- Focus Area: ${inputData.focusArea}
+- Location: ${inputData.location}
+- Language: ${inputData.language}
 
-🎯 **QUANTORA MISSION:**
-Provide expert-level fundamental research and analysis for crypto assets with institutional-grade insights.
+Analyze the following content and provide comprehensive intelligence:
 
-📊 **RESPONSE GUIDELINES:**
-1. Deliver comprehensive, data-driven analysis
-2. Use markdown formatting for clear structure
-3. Include specific metrics and actionable insights
-4. Emphasize risk management and due diligence
-5. Provide sources when possible
-6. Keep mobile-friendly (250-350 words max)
-7. Use professional yet accessible language
+🔍 **HYPE CYCLE ANALYSIS:**
+- Current hype stage (Early Formation/Rising Hype/Peak Hype/Decline/Stabilization)
+- Peak prediction timeline with confidence intervals
+- Historical pattern matching with similar cycles
+- Bubble warning system with specific risk metrics
+- Exit strategy recommendations
 
-🔍 **ANALYSIS FRAMEWORK:**
-- Always include key findings summary
-- Provide risk assessment when relevant
-- Suggest next steps or follow-up research
-- Use bullet points and headers for clarity
+📱 **SOCIAL INTELLIGENCE:**
+- Cross-platform trend analysis (Twitter, Reddit, Discord, Telegram)
+- Influencer impact measurement and tracking
+- Viral content identification and prediction
+- Sentiment correlation with price movements
+- Real-time social momentum indicators
 
-**QUANTORA CODE:** "Intelligence through precision, insights through analysis, success through research."
+🎯 **FUSION INSIGHTS:**
+- Hype-Social correlation analysis
+- Risk-adjusted opportunity scoring
+- Market manipulation detection
+- Community behavior patterns
+- Actionable trading signals
 
-Respond as the expert ${agent.name} with authority and actionable intelligence.`;
+Format response in detailed markdown with specific metrics, charts data suggestions, and actionable insights. Keep comprehensive but under 600 words.`;
 
-      const response = await fetch("/api/agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [
-            { role: "system", content: systemPrompt },
-            ...updatedConversation.slice(-8).map(msg => ({
-              role: msg.role,
-              content: msg.content
-            }))
-          ],
-        }),
+            { role: 'system', content: systemPrompt },
+            { 
+              role: 'user', 
+              content: `**CONTENT TO ANALYZE:**\n${inputData.content}\n\nPlease provide comprehensive hype cycle and social intelligence analysis.`,
+              timestamp: new Date().toLocaleTimeString()
+            }
+          ]
+        })
       });
-
-      if (!response.ok) {
-        throw new Error(`Research network error: ${response.status}`);
-      }
 
       const data = await response.json();
 
-      if (data?.reply) {
-        const agentResponse = {
-          role: 'assistant',
-          content: data.reply,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          id: `agent_${Date.now()}`,
-          agent: agent.name
-        };
+      if (data.reply) {
+        const socialData = generateSocialIntelligenceData();
+        
+        setAnalysisResult({
+          analysis: data.reply,
+          socialIntelligence: socialData,
+          timestamp: new Date(),
+          confidence: Math.floor(Math.random() * 20) + 80,
+          analysisId: Date.now().toString(36).toUpperCase(),
+          parameters: inputData
+        });
 
-        setConversation(prev => [...prev, agentResponse]);
-        triggerHaptic('notification', 'success');
+        // Start real-time monitoring simulation
+        setRealTimeData(socialData);
+        
+        hapticFeedback('heavy');
+      } else {
+        throw new Error('No analysis received from SENTRA AI');
       }
-    } catch (error) {
-      console.error("Agent Communication Error:", error);
-      const errorMessage = {
-        role: 'assistant',
-        content: "🤖 **SYSTEM ERROR**\n\nQuantora intelligence network experiencing temporary disruption. Reconnecting to research servers...\n\n*Please try your query again.*",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        id: `error_${Date.now()}`
-      };
-      setConversation(prev => [...prev, errorMessage]);
-      triggerHaptic('notification', 'error');
+    } catch (err) {
+      console.error('Analysis error:', err);
+      setError('Failed to analyze content. Please check your connection and try again.');
+      hapticFeedback('heavy');
     } finally {
-      setIsTyping(false);
-      setLoading(false);
+      setAnalyzing(false);
     }
   };
 
-  const formatNumber = (num) => {
-    if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
-    return num.toString();
+  // Handle chat with the agent
+  const handleChat = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+
+    const userMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: chatInput,
+      timestamp: new Date().toLocaleTimeString()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setChatLoading(true);
+
+    try {
+      const systemPrompt = `You are SENTRA AI Hype Cycle & Social Intelligence agent. Answer user questions about the analysis results, provide additional insights, explain metrics, or help with trading decisions. Keep responses concise but informative.
+
+Current Analysis Context:
+${analysisResult ? `- Hype Stage: ${analysisResult.socialIntelligence.hypeCycleStage}
+- Viral Potential: ${analysisResult.socialIntelligence.viralPotential}/100
+- Risk Level: ${analysisResult.socialIntelligence.riskLevel}/100
+- Peak Prediction: ${analysisResult.socialIntelligence.peakPrediction} hours` : 'No active analysis'}`;
+
+      const response = await fetch('/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...chatMessages.slice(-5),
+            userMessage
+          ]
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.reply) {
+        const botMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: data.reply,
+          timestamp: new Date().toLocaleTimeString()
+        };
+
+        setChatMessages(prev => [...prev, botMessage]);
+      }
+    } catch (err) {
+      console.error('Chat error:', err);
+      const errorMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: '🔧 I encountered an issue. Please try again or rephrase your question.',
+        timestamp: new Date().toLocaleTimeString()
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setChatLoading(false);
+    }
   };
 
-  if (!selectedAgent) {
-    return (
-      <div className="pb-20">
-        {/* Enhanced Header */}
+  // Scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  // Real-time data simulation
+  useEffect(() => {
+    if (!realTimeData) return;
+
+    const interval = setInterval(() => {
+      setRealTimeData(prev => ({
+        ...prev,
+        viralPotential: Math.max(0, Math.min(100, prev.viralPotential + (Math.random() - 0.5) * 10)),
+        socialMomentum: Math.max(0, Math.min(100, prev.socialMomentum + (Math.random() - 0.5) * 8))
+      }));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [realTimeData]);
+
+  // Chart Components
+  const HypeCycleChart = ({ data }) => {
+    const chartData = {
+      labels: Array.from({length: 24}, (_, i) => `${i}h`),
+      datasets: [
+        {
+          label: 'Hype Level',
+          data: data.hype,
+          fill: true,
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderColor: 'rgba(239, 68, 68, 1)',
+          borderWidth: 3,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 8
+        },
+        {
+          label: 'Risk Level',
+          data: data.risk,
+          fill: true,
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          borderColor: 'rgba(245, 158, 11, 1)',
+          borderWidth: 2,
+          tension: 0.4,
+          pointRadius: 3
+        }
+      ]
+    };
+
+    const options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { 
+          display: true,
+          labels: { color: '#ffffff', font: { size: 12 } }
+        },
+        tooltip: { 
+          backgroundColor: 'rgba(17, 24, 39, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#d1d5db'
+        }
+      },
+      scales: {
+        x: { 
+          grid: { color: 'rgba(55, 65, 81, 0.3)' },
+          ticks: { color: '#9ca3af' }
+        },
+        y: { 
+          min: 0, max: 100,
+          grid: { color: 'rgba(55, 65, 81, 0.3)' },
+          ticks: { color: '#9ca3af' }
+        }
+      }
+    };
+
+    return <Line data={chartData} options={options} height={300} />;
+  };
+
+  const SocialRadarChart = ({ data }) => {
+    const chartData = {
+      labels: ['Twitter', 'Reddit', 'Discord', 'Telegram', 'Influencers', 'Viral Content'],
+      datasets: [{
+        label: 'Social Intelligence',
+        data: [
+          data.platformData.twitter.sentiment,
+          data.platformData.reddit.sentiment,
+          data.platformData.discord.activity,
+          Math.floor(data.platformData.telegram.views / 1000),
+          data.influencerEngagement,
+          data.viralPotential
+        ],
+        fill: true,
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+        pointRadius: 6
+      }]
+    };
+
+    const options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        r: {
+          min: 0,
+          max: 100,
+          ticks: { color: '#9ca3af', backdropColor: 'transparent' },
+          grid: { color: 'rgba(55, 65, 81, 0.3)' },
+          angleLines: { color: 'rgba(55, 65, 81, 0.3)' },
+          pointLabels: { color: '#ffffff', font: { size: 12 } }
+        }
+      }
+    };
+
+    return <Radar data={chartData} options={options} height={300} />;
+  };
+
+  const InfluencerImpactChart = ({ influencers }) => {
+    const chartData = {
+      labels: influencers.map(inf => inf.name),
+      datasets: [{
+        label: 'Impact Score',
+        data: influencers.map(inf => inf.impact),
+        backgroundColor: [
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(59, 130, 246, 0.8)', 
+          'rgba(139, 92, 246, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(239, 68, 68, 0.8)'
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    };
+
+    const options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(17, 24, 39, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#d1d5db'
+        }
+      },
+      scales: {
+        x: { 
+          ticks: { color: '#9ca3af', maxRotation: 45 },
+          grid: { color: 'rgba(55, 65, 81, 0.3)' }
+        },
+        y: { 
+          min: 0, max: 100,
+          ticks: { color: '#9ca3af' },
+          grid: { color: 'rgba(55, 65, 81, 0.3)' }
+        }
+      }
+    };
+
+    return <Bar data={chartData} options={options} height={250} />;
+  };
+
+  const PlatformDistributionChart = ({ platformData }) => {
+    const chartData = {
+      labels: ['Twitter', 'Reddit', 'Discord', 'Telegram'],
+      datasets: [{
+        data: [
+          platformData.twitter.mentions,
+          platformData.reddit.posts * 10,
+          platformData.discord.mentions,
+          platformData.telegram.messages
+        ],
+        backgroundColor: [
+          'rgba(29, 161, 242, 0.8)',
+          'rgba(255, 69, 0, 0.8)',
+          'rgba(114, 137, 218, 0.8)',
+          'rgba(0, 136, 204, 0.8)'
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    };
+
+    const options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { 
+          position: 'bottom',
+          labels: { color: '#ffffff', font: { size: 12 } }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(17, 24, 39, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#d1d5db'
+        }
+      }
+    };
+
+    return <Doughnut data={chartData} options={options} height={250} />;
+  };
+
+  return (
+    <div className="min-h-screen text-white">
+      {/* Advanced Header */}
+      <motion.div 
+        className="glass mb-6 relative overflow-hidden"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-purple-500/10 to-blue-500/5" />
+        <div className="relative text-center">
+          <motion.div 
+            className="w-24 h-24 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4"
+            whileHover={{ scale: 1.05, rotate: 10 }}
+            animate={{ 
+              boxShadow: [
+                '0 0 20px rgba(239, 68, 68, 0.4)',
+                '0 0 30px rgba(147, 51, 234, 0.5)',
+                '0 0 40px rgba(59, 130, 246, 0.4)',
+                '0 0 20px rgba(239, 68, 68, 0.4)'
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            <LuTarget className="w-12 h-12 text-white" />
+          </motion.div>
+          <h1 className="text-3xl font-black bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
+            HYPE CYCLE & SOCIAL INTELLIGENCE
+          </h1>
+          <p className="text-purple-400 font-bold text-sm uppercase tracking-wider mb-2">
+            Advanced Fusion AI Agent Platform
+          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+            <HiLightningBolt className="w-4 h-4 text-yellow-500" />
+            <span>Real-time Monitoring</span>
+            <span>•</span>
+            <span>Hype Detection</span>
+            <span>•</span>
+            <span>Social Analysis</span>
+            <span>•</span>
+            <span>Risk Assessment</span>
+            <HiLightningBolt className="w-4 h-4 text-yellow-500" />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Advanced Input Form */}
+      <motion.form 
+        className="glass mb-6 relative overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        onSubmit={handleAnalyze}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-800/10 to-gray-900/20" />
+        <div className="relative space-y-6">
+          {/* Main Content Input */}
+          <div>
+            <label className="block text-lg font-bold text-white mb-3">
+              <HiBeaker className="w-5 h-5 inline mr-2 text-purple-400" />
+              Content for Analysis
+            </label>
+            <div className="relative">
+              <textarea
+                value={inputData.content}
+                onChange={(e) => setInputData(prev => ({...prev, content: e.target.value}))}
+                placeholder="🔍 Enter crypto news, social media posts, project announcements, or any content for comprehensive hype cycle and social intelligence analysis..."
+                className="w-full h-32 bg-gray-900 border-2 border-gray-700 focus:border-purple-400 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-400/20"
+                required
+                disabled={analyzing}
+              />
+              <div className="absolute bottom-3 right-3 text-xs text-gray-500">
+                {inputData.content.length}/5000
+              </div>
+            </div>
+          </div>
+
+          {/* Content Type Selection */}
+          <div>
+            <label className="block text-sm font-bold text-gray-300 mb-3">
+              <HiOutlineTag className="w-4 h-4 inline mr-2" />
+              Content Type
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: 'news', label: 'News Article', icon: '📰' },
+                { value: 'social', label: 'Social Post', icon: '💬' },
+                { value: 'announcement', label: 'Announcement', icon: '📢' },
+                { value: 'analysis', label: 'Analysis', icon: '📊' }
+              ].map((type) => (
+                <label key={type.value} className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="contentType"
+                    value={type.value}
+                    checked={inputData.contentType === type.value}
+                    onChange={(e) => setInputData(prev => ({...prev, contentType: e.target.value}))}
+                    className="sr-only"
+                  />
+                  <div className={`flex items-center gap-2 w-full rounded-lg border-2 transition-all ${
+                    inputData.contentType === type.value 
+                      ? 'border-purple-400 bg-purple-400/10 text-white' 
+                      : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-500'
+                  }`} style={{ padding: '12px' }}>
+                    <span className="text-lg">{type.icon}</span>
+                    <span className="font-semibold text-sm">{type.label}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Platform Selection */}
+          <div>
+            <label className="block text-sm font-bold text-gray-300 mb-3">
+              <HiGlobe className="w-4 h-4 inline mr-2" />
+              Monitoring Platforms
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: 'twitter', label: 'Twitter/X', icon: '🐦', color: 'blue' },
+                { value: 'reddit', label: 'Reddit', icon: '📱', color: 'orange' },
+                { value: 'discord', label: 'Discord', icon: '💬', color: 'indigo' },
+                { value: 'telegram', label: 'Telegram', icon: '✈️', color: 'cyan' }
+              ].map((platform) => (
+                <label key={platform.value} className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    value={platform.value}
+                    checked={inputData.platforms.includes(platform.value)}
+                    onChange={(e) => {
+                      const platforms = e.target.checked 
+                        ? [...inputData.platforms, platform.value]
+                        : inputData.platforms.filter(p => p !== platform.value);
+                      setInputData(prev => ({...prev, platforms}));
+                    }}
+                    className="sr-only"
+                  />
+                  <div className={`flex items-center gap-2 w-full rounded-lg border-2 transition-all ${
+                    inputData.platforms.includes(platform.value)
+                      ? `border-${platform.color}-400 bg-${platform.color}-400/10 text-white` 
+                      : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-500'
+                  }`} style={{ padding: '12px' }}>
+                    <span className="text-lg">{platform.icon}</span>
+                    <span className="font-semibold text-sm">{platform.label}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Advanced Options Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Analysis Depth */}
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2">
+                <HiOutlineAdjustments className="w-4 h-4 inline mr-2" />
+                Analysis Depth
+              </label>
+              <select
+                value={inputData.analysisDepth}
+                onChange={(e) => setInputData(prev => ({...prev, analysisDepth: e.target.value}))}
+                className="w-full bg-gray-800 border-2 border-gray-600 focus:border-cyan-400 rounded-lg text-white focus:outline-none"
+                style={{ padding: '10px' }}
+              >
+                <option value="quick">Quick Scan</option>
+                <option value="standard">Standard Analysis</option>
+                <option value="comprehensive">Comprehensive</option>
+                <option value="deep">Deep Intelligence</option>
+              </select>
+            </div>
+
+            {/* Timeframe */}
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2">
+                <HiOutlineCalendar className="w-4 h-4 inline mr-2" />
+                Timeframe
+              </label>
+              <select
+                value={inputData.timeframe}
+                onChange={(e) => setInputData(prev => ({...prev, timeframe: e.target.value}))}
+                className="w-full bg-gray-800 border-2 border-gray-600 focus:border-cyan-400 rounded-lg text-white focus:outline-none"
+                style={{ padding: '10px' }}
+              >
+                <option value="1h">Last Hour</option>
+                <option value="6h">Last 6 Hours</option>
+                <option value="24h">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+              </select>
+            </div>
+
+            {/* Focus Area */}
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2">
+                <LuTarget className="w-4 h-4 inline mr-2" />
+                Focus Area
+              </label>
+              <select
+                value={inputData.focusArea}
+                onChange={(e) => setInputData(prev => ({...prev, focusArea: e.target.value}))}
+                className="w-full bg-gray-800 border-2 border-gray-600 focus:border-cyan-400 rounded-lg text-white focus:outline-none"
+                style={{ padding: '10px' }}
+              >
+                <option value="general">General Crypto</option>
+                <option value="defi">DeFi & DEX</option>
+                <option value="nft">NFTs & Gaming</option>
+                <option value="altcoins">Altcoins</option>
+                <option value="bitcoin">Bitcoin Focus</option>
+                <option value="ethereum">Ethereum Focus</option>
+              </select>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2">
+                <HiOutlineLocationMarker className="w-4 h-4 inline mr-2" />
+                Geographic Focus
+              </label>
+              <select
+                value={inputData.location}
+                onChange={(e) => setInputData(prev => ({...prev, location: e.target.value}))}
+                className="w-full bg-gray-800 border-2 border-gray-600 focus:border-cyan-400 rounded-lg text-white focus:outline-none"
+                style={{ padding: '10px' }}
+              >
+                <option value="global">Global</option>
+                <option value="us">United States</option>
+                <option value="eu">Europe</option>
+                <option value="asia">Asia Pacific</option>
+                <option value="americas">Americas</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Analyze Button */}
+          <motion.button
+            type="submit"
+            className="w-full bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 hover:from-red-500 hover:via-purple-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+            disabled={analyzing || !inputData.content.trim()}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ height: '64px' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+            {analyzing ? (
+              <>
+                <motion.div
+                  className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <span className="text-lg">Analyzing Hype Cycle & Social Intelligence...</span>
+              </>
+            ) : (
+              <>
+                <LuTarget className="w-6 h-6" />
+                <span className="text-lg">Launch Fusion Analysis</span>
+                <HiLightningBolt className="w-5 h-5" />
+              </>
+            )}
+          </motion.button>
+        </div>
+      </motion.form>
+
+      {/* Real-time Status Bar */}
+      {realTimeData && (
         <motion.div 
-          className="glass glass-p mb-6"
-          initial={{ opacity: 0, y: -30 }}
+          className="glass mb-6 relative overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
         >
-          <div className="p-3">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div>
-                  <h1 className="text-xl font-semibold tektur text-white leading-none mb-1">
-                    Quantora Intelligence
-                  </h1>
-                  <p className="text-cyan-400 font-medium text-sm uppercase">
-                    AI Research Agents
-                  </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <motion.div 
+                  className="w-3 h-3 bg-green-500 rounded-full"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <span className="text-green-400 font-bold text-sm">LIVE MONITORING</span>
+              </div>
+              <div className="text-sm text-gray-400">
+                Viral Potential: <span className="text-purple-400 font-bold">{Math.round(realTimeData.viralPotential)}%</span>
+              </div>
+              <div className="text-sm text-gray-400">
+                Social Momentum: <span className="text-blue-400 font-bold">{Math.round(realTimeData.socialMomentum)}%</span>
+              </div>
+            </div>
+            <motion.button
+              onClick={() => setRealTimeData(generateSocialIntelligenceData())}
+              className="text-gray-400 hover:text-white transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <HiRefresh className="w-5 h-5" />
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <motion.div 
+          className="glass bg-red-900/20 border-2 border-red-500/30 mb-6"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="flex items-center gap-3">
+            <BsExclamationTriangle className="w-8 h-8 text-red-400 flex-shrink-0" />
+            <div>
+              <h4 className="text-red-400 font-bold text-lg">Analysis Error</h4>
+              <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Analysis Results */}
+      <AnimatePresence>
+        {analysisResult && (
+          <div className="space-y-6">
+            {/* Results Header */}
+            <motion.div 
+              className="glass relative overflow-hidden"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-purple-500/10 to-blue-500/5" />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <HiShieldCheck className="w-8 h-8 text-green-400" />
+                    <div>
+                      <h2 className="text-2xl font-black text-green-400">Analysis Complete</h2>
+                      <p className="text-sm text-gray-400">
+                        ID: {analysisResult.analysisId} • Confidence: {analysisResult.confidence}%
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm text-gray-400">
+                    <div>Stage: <span className="text-purple-400 font-bold">{analysisResult.socialIntelligence.hypeCycleStage}</span></div>
+                    <div>Peak ETA: <span className="text-yellow-400 font-bold">{analysisResult.socialIntelligence.peakPrediction}h</span></div>
+                  </div>
+                </div>
+
+                {/* Key Metrics Overview */}
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
+                    <div className="text-lg font-black text-purple-400">
+                      {analysisResult.socialIntelligence.viralPotential}/100
+                    </div>
+                    <div className="text-xs text-gray-400 font-bold">VIRAL</div>
+                  </div>
+                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
+                    <div className="text-lg font-black text-blue-400">
+                      {analysisResult.socialIntelligence.socialMomentum}/100
+                    </div>
+                    <div className="text-xs text-gray-400 font-bold">MOMENTUM</div>
+                  </div>
+                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
+                    <div className="text-lg font-black text-yellow-400">
+                      {analysisResult.socialIntelligence.riskLevel}/100
+                    </div>
+                    <div className="text-xs text-gray-400 font-bold">RISK</div>
+                  </div>
+                  <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
+                    <div className="text-lg font-black text-green-400">
+                      {analysisResult.socialIntelligence.influencerEngagement}/100
+                    </div>
+                    <div className="text-xs text-gray-400 font-bold">INFLUENCE</div>
+                  </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-lg font-black text-lime-400">
-                  {researchCredits}
-                </div>
-                <div className="text-xs text-white/70 font-semibold uppercase tracking-wide">
-                  Credits
-                </div>
+            </motion.div>
+
+            {/* Advanced Tab Navigation */}
+            <div className="glass">
+              <div className="grid grid-cols-5 gap-2">
+                {[
+                  { id: 'overview', label: 'Overview', icon: HiEye, color: 'cyan' },
+                  { id: 'charts', label: 'Charts', icon: HiChartBar, color: 'purple' },
+                  { id: 'social', label: 'Social', icon: HiUsers, color: 'blue' },
+                  { id: 'analysis', label: 'Analysis', icon: LuBrainCircuit, color: 'green' },
+                  { id: 'chat', label: 'Chat', icon: HiOutlineChatAlt, color: 'pink' }
+                ].map((tab) => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <motion.button
+                      key={tab.id}
+                      onClick={() => {
+                        setSelectedTab(tab.id);
+                        hapticFeedback('light');
+                      }}
+                      className={`rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all ${
+                        selectedTab === tab.id 
+                          ? `bg-${tab.color}-600 text-white shadow-lg` 
+                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                      }`}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{ padding: '10px' }}
+                    >
+                      <IconComponent className="w-4 h-4" />
+                      <span>{tab.label}</span>
+                    </motion.button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Stats Overview */}
-            <motion.div 
-              className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-gray-900/30 backdrop-blur-sm"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="text-center">
-                <div className="text-lime-400 font-black text-lg">5</div>
-                <div className="text-white/70 text-xs font-semibold uppercase">Agents</div>
-              </div>
-              <div className="text-center">
-                <div className="text-cyan-400 font-black text-lg">200K+</div>
-                <div className="text-white/70 text-xs font-semibold uppercase">Users</div>
-              </div>
-              <div className="text-center">
-                <div className="text-violet-400 font-black text-lg">95%</div>
-                <div className="text-white/70 text-xs font-semibold uppercase">Accuracy</div>
-              </div>
-            </motion.div>
-            
-            <p className="text-white/90 text-sm mt-4 text-balance leading-relaxed">
-              Choose your specialized AI research agent for institutional-grade crypto analysis
-            </p>
-          </div>
-        </motion.div>
+            {/* Tab Content */}
+            <AnimatePresence mode="wait">
+              {selectedTab === 'overview' && (
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  {/* Hype Cycle Status */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                      <HiFire className="w-6 h-6" />
+                      Hype Cycle Analysis
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '16px' }}>
+                        <div className="text-2xl font-black text-red-400 mb-2">
+                          {analysisResult.socialIntelligence.hypeCycleStage}
+                        </div>
+                        <div className="text-xs text-gray-400 font-bold">CURRENT STAGE</div>
+                      </div>
+                      <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '16px' }}>
+                        <div className="text-2xl font-black text-yellow-400 mb-2">
+                          {analysisResult.socialIntelligence.peakPrediction}h
+                        </div>
+                        <div className="text-xs text-gray-400 font-bold">PEAK ETA</div>
+                      </div>
+                    </div>
 
-        {/* Enhanced Agent Cards */}
-        <div className="space-y-4">
-          {agentsData.map((agent, index) => {
-            const IconComponent = agent.icon;
-            const isExpanded = expandedAgent === agent.id;
-            const isFavorite = favorites.has(agent.id);
-            
-            return (
-              <motion.div
-                key={agent.id}
-                className="glass glass-p cursor-pointer group relative overflow-hidden"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -4, scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => !isExpanded && handleAgentSelect(agent)}
-              >
-                <div className={`p-3 relative`}>
-                  
-                  {/* Status & Favorite Row */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <motion.div 
-                        className={`w-2 h-2 rounded-full bg-${agent.color} shadow-sm`}
-                        animate={{ scale: [1, 1.3, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                    <div className="bg-gray-800 rounded-xl" style={{ padding: '16px' }}>
+                      <h4 className="text-lg font-bold text-yellow-400 mb-3">Risk Assessment</h4>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-gray-700 rounded-full h-3">
+                          <motion.div 
+                            className="bg-gradient-to-r from-yellow-500 to-red-500 h-3 rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${analysisResult.socialIntelligence.riskLevel}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                          />
+                        </div>
+                        <span className="text-white font-bold">{analysisResult.socialIntelligence.riskLevel}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top Viral Posts */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                      <HiLightningBolt className="w-6 h-6" />
+                      Trending Viral Content
+                    </h3>
+                    
+                    <div className="space-y-3">
+                      {analysisResult.socialIntelligence.viralPosts.map((post, index) => (
+                        <div key={index} className="bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-purple-400">{post.platform}</span>
+                              <div className="flex items-center gap-1">
+                                <HiFire className="w-4 h-4 text-orange-500" />
+                                <span className="text-xs text-orange-500 font-bold">{post.viralScore}/100</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-400">{post.engagement.toLocaleString()} engagements</div>
+                          </div>
+                          <p className="text-sm text-gray-300">{post.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedTab === 'charts' && (
+                <motion.div
+                  key="charts"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  {/* Hype Cycle Timeline */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                      <HiFire className="w-6 h-6" />
+                      Hype Cycle Timeline (24h)
+                    </h3>
+                    <div style={{ height: '300px' }}>
+                      <HypeCycleChart data={analysisResult.socialIntelligence.timeSeriesData} />
+                    </div>
+                  </div>
+
+                  {/* Social Intelligence Radar */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                      <MdOutlineRadar className="w-6 h-6" />
+                      Social Intelligence Radar
+                    </h3>
+                    <div style={{ height: '350px' }}>
+                      <SocialRadarChart data={analysisResult.socialIntelligence} />
+                    </div>
+                  </div>
+
+                  {/* Platform Distribution */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+                      <HiCollection className="w-6 h-6" />
+                      Platform Activity Distribution
+                    </h3>
+                    <div style={{ height: '300px' }}>
+                      <PlatformDistributionChart platformData={analysisResult.socialIntelligence.platformData} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedTab === 'social' && (
+                <motion.div
+                  key="social"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  {/* Platform Metrics */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                      <HiGlobe className="w-6 h-6" />
+                      Platform Intelligence
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      {Object.entries(analysisResult.socialIntelligence.platformData).map(([platform, data]) => (
+                        <div key={platform} className="bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-lg font-bold text-white capitalize">{platform}</h4>
+                            <div className="text-xs text-gray-400">
+                              Sentiment: <span className="text-purple-400 font-bold">{data.sentiment || data.activity}%</span>
+                            </div>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            {platform === 'twitter' && (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Mentions:</span>
+                                  <span className="text-white font-bold">{data.mentions.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Influencers:</span>
+                                  <span className="text-white font-bold">{data.influencers}</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {data.hashtags.map((tag, index) => (
+                                    <span key={index} className="bg-blue-600 text-white text-xs rounded-full" style={{ padding: '2px 8px' }}>
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                            {platform === 'reddit' && (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Posts:</span>
+                                  <span className="text-white font-bold">{data.posts.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Upvotes:</span>
+                                  <span className="text-white font-bold">{data.upvotes.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Comments:</span>
+                                  <span className="text-white font-bold">{data.comments.toLocaleString()}</span>
+                                </div>
+                              </>
+                            )}
+                            {platform === 'discord' && (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Mentions:</span>
+                                  <span className="text-white font-bold">{data.mentions.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Servers:</span>
+                                  <span className="text-white font-bold">{data.servers}</span>
+                                </div>
+                              </>
+                            )}
+                            {platform === 'telegram' && (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Channels:</span>
+                                  <span className="text-white font-bold">{data.channels}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Messages:</span>
+                                  <span className="text-white font-bold">{data.messages.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">Views:</span>
+                                  <span className="text-white font-bold">{data.views.toLocaleString()}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Top Influencers */}
+                  <div className="glass">
+                    <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                      <HiUsers className="w-6 h-6" />
+                      Top Influencers Impact
+                    </h3>
+                    
+                    <div style={{ height: '300px', marginBottom: '16px' }}>
+                      <InfluencerImpactChart influencers={analysisResult.socialIntelligence.topInfluencers} />
+                    </div>
+
+                    <div className="space-y-3">
+                      {analysisResult.socialIntelligence.topInfluencers.map((influencer, index) => (
+                        <div key={index} className="flex items-center justify-between bg-gray-900 rounded-xl" style={{ padding: '12px' }}>
+                          <div className="flex items-center gap-3">
+                            <div className="text-2xl font-bold text-purple-400">#{index + 1}</div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-white font-bold">{influencer.name}</span>
+                                {influencer.verified && (
+                                  <HiShieldCheck className="w-4 h-4 text-blue-400" />
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400">{influencer.followers} followers</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-green-400">{influencer.impact}/100</div>
+                            <div className="text-xs text-gray-400">Impact Score</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedTab === 'analysis' && (
+                <motion.div
+                  key="analysis"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  {/* AI Analysis with Enhanced Markdown */}
+                  <div className="glass">
+                    <div className="flex items-center gap-3 mb-6">
+                      <LuBrainCircuit className="w-8 h-8 text-green-400" />
+                      <div>
+                        <h3 className="text-2xl font-bold text-green-400">SENTRA Fusion Analysis</h3>
+                        <p className="text-sm text-gray-400">Comprehensive Hype Cycle & Social Intelligence Report</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-900 rounded-xl" style={{ padding: '24px' }}>
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                        className="prose prose-invert prose-lg max-w-none"
+                        components={{
+                          h1: ({ children, ...props }) => (
+                            <h1 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2" {...props}>
+                              <HiFire className="w-6 h-6" />
+                              {children}
+                            </h1>
+                          ),
+                          h2: ({ children, ...props }) => (
+                            <h2 className="text-xl font-bold text-purple-400 mb-3 flex items-center gap-2" {...props}>
+                              <HiUsers className="w-5 h-5" />
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children, ...props }) => (
+                            <h3 className="text-lg font-semibold text-blue-400 mb-2 flex items-center gap-2" {...props}>
+                              <LuTarget className="w-4 h-4" />
+                              {children}
+                            </h3>
+                          ),
+                          p: ({ children, ...props }) => (
+                            <p className="text-gray-300 mb-4 text-base leading-relaxed" {...props}>
+                              {children}
+                            </p>
+                          ),
+                          ul: ({ children, ...props }) => (
+                            <ul className="list-disc list-inside text-gray-300 mb-4 space-y-2" {...props}>
+                              {children}
+                            </ul>
+                          ),
+                          li: ({ children, ...props }) => (
+                            <li className="text-base leading-relaxed" {...props}>
+                              {children}
+                            </li>
+                          ),
+                          strong: ({ children, ...props }) => (
+                            <strong className="text-white font-bold bg-gray-800 rounded" style={{ padding: '2px 6px' }} {...props}>
+                              {children}
+                            </strong>
+                          ),
+                          em: ({ children, ...props }) => (
+                            <em className="text-cyan-400 font-semibold not-italic" {...props}>
+                              {children}
+                            </em>
+                          ),
+                          blockquote: ({ children, ...props }) => (
+                            <blockquote className="border-l-4 border-purple-400 bg-gray-800 rounded-r-lg italic text-gray-300 my-4" style={{ padding: '16px' }} {...props}>
+                              {children}
+                            </blockquote>
+                          ),
+                          code: ({ children, ...props }) => (
+                            <code className="bg-gray-800 text-green-400 rounded text-sm font-mono" style={{ padding: '2px 6px' }} {...props}>
+                              {children}
+                            </code>
+                          )
+                        }}
                       >
-                        <div className={`w-2 h-2 rounded-full bg-${agent.color} animate-ping opacity-75`} />
-                      </motion.div>
-                      <span className={`text-xs font-bold uppercase tracking-wider text-${agent.color}`}>
-                        ONLINE
-                      </span>
-                      {/* Badges */}
-                      <div className="flex gap-1">
-                        {agent.badges.slice(0, 2).map((badge, idx) => (
-                          <span key={idx} className={`px-2 py-0.5 rounded-full text-xs font-bold bg-${agent.color}/20 text-${agent.color}`}>
-                            {badge}
-                          </span>
+                        {analysisResult.analysis}
+                      </ReactMarkdown>
+                    </div>
+
+                    {/* Analysis Parameters */}
+                    <div className="bg-gray-800 rounded-xl mt-6" style={{ padding: '20px' }}>
+                      <h4 className="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">
+                        <HiOutlineAdjustments className="w-5 h-5" />
+                        Analysis Parameters
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Content Type:</span>
+                          <span className="text-white font-semibold capitalize">{analysisResult.parameters.contentType}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Platforms:</span>
+                          <span className="text-white font-semibold">{analysisResult.parameters.platforms.length}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Depth:</span>
+                          <span className="text-white font-semibold capitalize">{analysisResult.parameters.analysisDepth}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Timeframe:</span>
+                          <span className="text-white font-semibold">{analysisResult.parameters.timeframe}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Focus:</span>
+                          <span className="text-white font-semibold capitalize">{analysisResult.parameters.focusArea}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Location:</span>
+                          <span className="text-white font-semibold capitalize">{analysisResult.parameters.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedTab === 'chat' && (
+                <motion.div
+                  key="chat"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  {/* Chat Interface */}
+                  <div className="glass">
+                    <div className="flex items-center gap-3 mb-4">
+                      <HiOutlineChatAlt className="w-8 h-8 text-pink-400" />
+                      <div>
+                        <h3 className="text-2xl font-bold text-pink-400">Chat with SENTRA AI</h3>
+                        <p className="text-sm text-gray-400">Ask questions about your analysis results</p>
+                      </div>
+                    </div>
+
+                    {/* Chat Messages */}
+                    <div className="bg-gray-900 rounded-xl mb-4" style={{ height: '400px', overflow: 'auto', padding: '16px' }}>
+                      {chatMessages.length === 0 ? (
+                        <div className="text-center text-gray-500 mt-8">
+                          <HiOutlineChatAlt className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                          <p>Start a conversation with SENTRA AI</p>
+                          <p className="text-sm mt-2">Ask about hype cycles, social trends, risk factors, or trading insights</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {chatMessages.map((message) => (
+                            <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-xs lg:max-w-md rounded-xl p-3 ${
+                                message.role === 'user' 
+                                  ? 'bg-pink-600 text-white' 
+                                  : 'bg-gray-800 text-gray-300'
+                              }`}>
+                                {message.role === 'assistant' && (
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <LuBrainCircuit className="w-4 h-4 text-pink-400" />
+                                    <span className="text-xs font-bold text-pink-400">SENTRA AI</span>
+                                  </div>
+                                )}
+                                <p className="text-sm leading-relaxed">{message.content}</p>
+                                <p className="text-xs opacity-70 mt-2">{message.timestamp}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {chatLoading && (
+                            <div className="flex justify-start">
+                              <div className="bg-gray-800 text-gray-300 max-w-xs rounded-xl p-3">
+                                <div className="flex items-center gap-2">
+                                  <motion.div
+                                    className="w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  />
+                                  <span className="text-sm text-pink-400">SENTRA AI is thinking...</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div ref={chatEndRef} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Chat Input */}
+                    <form onSubmit={handleChat} className="flex gap-3">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Ask about hype cycles, social trends, risks, or trading insights..."
+                        className="flex-1 bg-gray-800 border-2 border-gray-600 focus:border-pink-400 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-400/20"
+                        style={{ padding: '12px' }}
+                        disabled={chatLoading}
+                      />
+                      <motion.button
+                        type="submit"
+                        className="bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl flex items-center justify-center transition-colors"
+                        disabled={chatLoading || !chatInput.trim()}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{ width: '48px', height: '48px' }}
+                      >
+                        <HiChat className="w-5 h-5" />
+                      </motion.button>
+                    </form>
+
+                    {/* Quick Questions */}
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-400 mb-2">Quick questions:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          "What's the peak prediction accuracy?",
+                          "How risky is this hype cycle?",
+                          "Which platform shows strongest signals?",
+                          "What's the exit strategy?"
+                        ].map((question, index) => (
+                          <motion.button
+                            key={index}
+                            onClick={() => setChatInput(question)}
+                            className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full transition-colors"
+                            style={{ padding: '6px 12px' }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {question}
+                          </motion.button>
                         ))}
                       </div>
                     </div>
-                    
-                    <motion.button
-                      onClick={(e) => toggleFavorite(agent.id, e)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors`}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <HiOutlineHeart className={`size-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'fill-transparent'}`} />
-                    </motion.button>
                   </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-                  {/* Agent Header */}
-                  <div className="flex items-start space-x-4 mb-2">
-                    <motion.div 
-                      className={`
-                        relative w-16 h-16 border border-${agent.color} rounded-2xl 
-                        flex items-center justify-center flex-shrink-0
-                        shadow-lg group-hover:shadow-xl transition-all duration-300
-                      `}
-                      whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <IconComponent className="w-8 h-8 text-white" />
-                    </motion.div>
-                    
-                    <div className="flex-1 min-w-0 mt-1">
-                      <h3 className="text-xl font-semibold tektur text-white leading-tight mb-1">
-                        {agent.name}
-                      </h3>
-                      <p className={`text-${agent.color} font-medium text-sm uppercase`}>
-                        {agent.subtitle}
-                      </p>
-                    </div>
-                  </div>
-                      <p className="text-white/90 text-sm leading-relaxed my-2">
-                        {agent.description}
-                      </p>
-
-                  {/* Key Metrics Grid */}
-                  <div className="grid grid-cols-4 gap-3 mb-5 p-3 rounded-xl bg-gray-900/40 backdrop-blur-sm">
-                    <div className="text-center">
-                      <div className={`text-${agent.color} font-black text-lg`}>
-                        {agent.performance}%
-                      </div>
-                      <div className="text-white/70 text-xs font-semibold uppercase">
-                        Accuracy
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-${agent.color} font-black text-lg`}>
-                        {agent.responseTime}
-                      </div>
-                      <div className="text-white/70 text-xs font-semibold uppercase">
-                        Speed
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-${agent.color} font-black text-lg`}>
-                        {formatNumber(agent.users)}
-                      </div>
-                      <div className="text-white/70 text-xs font-semibold uppercase">
-                        Users
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-${agent.color} font-black text-lg`}>
-                        {agent.energyLevel}%
-                      </div>
-                      <div className="text-white/70 text-xs font-semibold uppercase">
-                        Energy
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Specializations */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full bg-${agent.color} shadow-sm`} />
-                        <span className={`text-${agent.color} font-bold text-xs uppercase tracking-wider`}>
-                          Core Specializations
-                        </span>
-                      </div>
-                      <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedAgent(isExpanded ? null : agent.id);
-                          triggerHaptic('impact', 'light');
-                        }}
-                        className={`text-xs font-bold text-${agent.color} flex items-center gap-1`}
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <HiOutlineEye className="w-3 h-3" />
-                        {isExpanded ? 'Less' : 'More'}
-                      </motion.button>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      {agent.specializations.slice(0, isExpanded ? 4 : 2).map((spec, idx) => {
-                        const SpecIcon = spec.icon;
-                        return (
-                          <motion.div
-                            key={idx}
-                            className={`
-                              relative p-3 rounded-lg border backdrop-blur-sm overflow-hidden
-                              bg-${agent.color}/10 border-${agent.color}/30 text-${agent.color}
-                            `}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 + 0.5 + (idx * 0.05) }}
-                            whileHover={{ scale: 1.05, y: -2 }}
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <SpecIcon className="w-4 h-4" />
-                              <div className="text-xs font-bold flex-1">
-                                {spec.name}
-                              </div>
-                            </div>
-                            {isExpanded && (
-                              <div className="space-y-1">
-                                <div className="flex justify-between text-xs">
-                                  <span>Proficiency</span>
-                                  <span className="font-bold">{spec.progress}%</span>
-                                </div>
-                                <div className="w-full bg-gray-700 rounded-full h-1">
-                                  <motion.div 
-                                    className={`bg-${agent.color} h-1 rounded-full`}
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${spec.progress}%` }}
-                                    transition={{ delay: idx * 0.1, duration: 0.8 }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Unique Feature Highlight */}
-                  <motion.div 
-                    className={`p-3 rounded-lg to-transparent border border-${agent.color} mb-4`}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <HiSparkles className={`w-4 h-4 text-${agent.color}`} />
-                      <span className={`text-xs font-bold text-${agent.color} uppercase tracking-wider`}>
-                        Unique Feature
-                      </span>
-                    </div>
-                    <p className="text-white/90 text-xs leading-relaxed">
-                      {agent.uniqueFeature}
-                    </p>
-                  </motion.div>
-
-                  {/* Recent Activity (Expanded Only) */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-2 mb-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <HiOutlineClock className={`w-4 h-4 text-${agent.color}`} />
-                          <span className={`text-xs font-bold text-${agent.color} uppercase tracking-wider`}>
-                            Recent Activity
-                          </span>
-                        </div>
-                        <div className="space-y-1">
-                          {agent.recentActivity.map((activity, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-xs text-white/70">
-                              <div className={`w-1 h-1 rounded-full bg-${agent.color}`} />
-                              <span>{activity}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Start Research Button */}
-                  <motion.div 
-                    className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <div className="flex items-center space-x-2 bg-gray-900/80 px-3 py-2 rounded-lg backdrop-blur-sm">
-                      <HiPlay className={`w-4 h-4 text-${agent.color}`} />
-                      <span className={`text-xs font-bold text-${agent.color}`}>Start Research</span>
-                    </div>
-                  </motion.div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Credits Warning Popup */}
-        <AnimatePresence>
-          {showCreditPopup && (
-            <motion.div
-              className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="glass max-w-sm w-full"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-              >
-                <div className="p-6 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-2xl">
-                  <div className="text-center mb-4">
-                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <HiOutlineExclamation className="w-8 h-8 text-red-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Insufficient Research Credits</h3>
-                    <p className="text-white/80 text-sm">
-                      You need research credits to access AI agents. Complete tasks to earn more credits.
-                    </p>
-                  </div>
-                  <div className="flex gap-3">
-                    <motion.button
-                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreditPopup(false)}
-                    >
-                      Close
-                    </motion.button>
-                    <motion.button
-                      className="flex-1 bg-gradient-to-r from-lime-400 to-green-500 text-gray-900 font-bold py-3 px-4 rounded-xl text-sm"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreditPopup(false)}
-                    >
-                      Earn Credits
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-screen flex flex-col">
-      {/* Chat Header */}
-      <motion.div 
-        className="glass glass-p flex-shrink-0 mb-4"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className={`p-3`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            {/* Action Buttons */}
+            <div className="grid grid-cols-3 gap-4">
               <motion.button
                 onClick={() => {
-                  setSelectedAgent(null);
-                  setConversation([]);
-                  triggerHaptic('impact', 'light');
+                  // Export comprehensive analysis
+                  const exportData = {
+                    analysis: analysisResult.analysis,
+                    socialIntelligence: analysisResult.socialIntelligence,
+                    timestamp: analysisResult.timestamp,
+                    parameters: analysisResult.parameters,
+                    confidence: analysisResult.confidence
+                  };
+                  
+                  const dataStr = JSON.stringify(exportData, null, 2);
+                  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                  
+                  const exportFileDefaultName = `sentra-fusion-analysis-${analysisResult.analysisId}.json`;
+                  
+                  const linkElement = document.createElement('a');
+                  linkElement.setAttribute('href', dataUri);
+                  linkElement.setAttribute('download', exportFileDefaultName);
+                  linkElement.click();
+                  
+                  hapticFeedback('medium');
                 }}
-                className="w-10 h-10 rounded-xl bg-gray-700/50 flex items-center justify-center text-white/70 hover:text-white transition-colors"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                style={{ padding: '16px' }}
               >
-                <HiArrowLeft className="w-5 h-5" />
+                <HiCollection className="w-5 h-5" />
+                Export
               </motion.button>
-              <div>
-                <h2 className="text-lg font-black tektur text-white leading-none">
-                  {selectedAgent.name}
-                </h2>
-                <p className="text-xs text-white/70">
-                  Credits: {researchCredits} • {selectedAgent.subtitle}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full bg-${selectedAgent.color}`}>
-                <div className={`w-2 h-2 rounded-full bg-${selectedAgent.color} animate-ping opacity-75`} />
-              </div>
-              <span className={`text-xs font-bold text-${selectedAgent.color} uppercase tracking-wider`}>
-                Online
-              </span>
+
+              <motion.button
+                onClick={() => {
+                  navigator.share?.({
+                    title: 'SENTRA Hype Cycle Analysis',
+                    text: `Hype Stage: ${analysisResult.socialIntelligence.hypeCycleStage} | Viral Potential: ${analysisResult.socialIntelligence.viralPotential}% | Risk: ${analysisResult.socialIntelligence.riskLevel}%`,
+                    url: window.location.href
+                  }).catch(() => {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard?.writeText(window.location.href);
+                  });
+                  hapticFeedback('light');
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                style={{ padding: '16px' }}
+              >
+                <HiShare className="w-5 h-5" />
+                Share
+              </motion.button>
+
+              <motion.button
+                onClick={() => {
+                  // Reset all state
+                  setInputData({
+                    content: '',
+                    contentType: 'news',
+                    platforms: ['twitter', 'reddit'],
+                    analysisDepth: 'comprehensive',
+                    timeframe: '24h',
+                    focusArea: 'general',
+                    location: 'global',
+                    language: 'en'
+                  });
+                  setAnalysisResult(null);
+                  setError(null);
+                  setSelectedTab('overview');
+                  setChatMessages([]);
+                  setChatInput('');
+                  setRealTimeData(null);
+                  hapticFeedback('light');
+                }}
+                className="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-gray-200 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                style={{ padding: '16px' }}
+              >
+                <HiRefresh className="w-5 h-5" />
+                New Analysis
+              </motion.button>
             </div>
           </div>
-        </div>
-      </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Chat Messages */}
-      <div className="flex-1 max-h-[56%] overflow-y-auto px-4 space-y-4">
-        <AnimatePresence>
-          {conversation.map((msg, index) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
-                {msg.role === 'assistant' && (
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className={`w-6 h-6 rounded-lg bg-gradient-to-r ${selectedAgent.gradient} flex items-center justify-center`}>
-                      <selectedAgent.icon className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-xs text-white/60">
-                      {selectedAgent.name} • {msg.timestamp}
-                    </span>
-                  </div>
-                )}
-                
-                <div className={`p-4 rounded-2xl shadow-lg ${
-                  msg.role === 'user' 
-                    ? 'bg-gradient-to-r from-cyan-500/80 to-blue-500/80 text-white rounded-br-sm' 
-                    : 'bg-gray-800/60 backdrop-blur-sm text-white border border-gray-700/50 rounded-tl-sm'
-                }`}>
-                  {msg.role === 'assistant' ? (
-                    <div className="prose prose-invert prose-sm max-w-none">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          h1: ({children}) => <h1 className="text-lg font-bold text-white mb-2">{children}</h1>,
-                          h2: ({children}) => <h2 className="text-base font-bold text-white mb-2">{children}</h2>,
-                          h3: ({children}) => <h3 className="text-sm font-bold text-white mb-1">{children}</h3>,
-                          p: ({children}) => <p className="text-white/90 text-sm leading-relaxed mb-2">{children}</p>,
-                          ul: ({children}) => <ul className="list-disc list-inside text-white/90 text-sm space-y-1 mb-2">{children}</ul>,
-                          ol: ({children}) => <ol className="list-decimal list-inside text-white/90 text-sm space-y-1 mb-2">{children}</ol>,
-                          li: ({children}) => <li className="text-white/90">{children}</li>,
-                          strong: ({children}) => <strong className={`text-${selectedAgent.color} font-bold`}>{children}</strong>,
-                          em: ({children}) => <em className="text-white/80 italic">{children}</em>,
-                          code: ({children}) => <code className="bg-gray-700/50 text-cyan-400 px-1 py-0.5 rounded text-xs">{children}</code>,
-                          blockquote: ({children}) => <blockquote className="border-l-2 border-cyan-400/50 pl-3 text-white/80 italic">{children}</blockquote>
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p className="text-sm leading-relaxed">{msg.content}</p>
-                  )}
-                </div>
-                
-                {msg.role === 'user' && (
-                  <div className="flex items-center justify-end space-x-2 mt-1">
-                    <span className="text-xs text-white/60">You • {msg.timestamp}</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {/* Typing Indicator */}
-        <AnimatePresence>
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="flex justify-start"
-            >
-              <div className="flex items-center space-x-2 mb-2">
-                <div className={`w-6 h-6 rounded-lg bg-gradient-to-r ${selectedAgent.gradient} flex items-center justify-center`}>
-                  <selectedAgent.icon className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-700/50 ml-2">
-                <div className="flex space-x-1">
-                  <motion.div 
-                    className="w-2 h-2 bg-cyan-400 rounded-full" 
-                    animate={{ scale: [1, 1.5, 1] }} 
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} 
-                  />
-                  <motion.div 
-                    className="w-2 h-2 bg-cyan-400 rounded-full" 
-                    animate={{ scale: [1, 1.5, 1] }} 
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }} 
-                  />
-                  <motion.div 
-                    className="w-2 h-2 bg-cyan-400 rounded-full" 
-                    animate={{ scale: [1, 1.5, 1] }} 
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }} 
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Chat Input */}
-      <motion.div 
-        className="flex-shrink-0 p-4 border-t border-gray-700/50"
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-3">
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask ${selectedAgent.name} `}
-              className="w-full bg-gray-800/50 backdrop-blur-sm text-white placeholder-white/50 rounded-2xl px-4 py-3 pr-12 border border-gray-600/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-transparent transition-all resize-none min-h-[48px] max-h-32"
-              disabled={loading}
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-            />
-            <motion.button
-              type="submit"
-              disabled={!input.trim() || loading}
-              className={`
-                absolute right-2 bottom-4 w-8 h-8 bg-gradient-to-r ${selectedAgent.gradient} rounded-xl 
-                flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed
-              `}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {loading ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  <HiRefresh className="w-4 h-4" />
-                </motion.div>
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-              )}
-            </motion.button>
-          </div>
-        </form>
-      </motion.div>
+      {/* Bottom Safe Area */}
+      <div style={{ height: '80px' }}></div>
     </div>
   );
 }
