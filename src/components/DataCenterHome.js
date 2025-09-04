@@ -432,7 +432,7 @@ Keep response under 200 words. Use emojis. Focus on actionable advice.`;
             return (
               <motion.div
                 key={coin.symbol}
-                className="glass glass-p group cursor-pointer relative overflow-hidden"
+                className="glass group cursor-pointer relative overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -30 }}
@@ -461,9 +461,9 @@ Keep response under 200 words. Use emojis. Focus on actionable advice.`;
                   trust.trustScore >= 70 ? 'bg-yellow-400' : 'bg-red-400'
                 }`} />
 
-                <div className="p-5">
+                <div className="">
                   {/* Action Buttons */}
-                  <div className="absolute top-4 right-4 flex gap-2">
+                  <div className="absolute top-4 left-[45%] flex gap-2">
                     <motion.button
                       onClick={(e) => toggleFavorite(coin.symbol, e)}
                       className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -488,7 +488,7 @@ Keep response under 200 words. Use emojis. Focus on actionable advice.`;
                   </div>
 
                   {/* Main Content */}
-                  <div className="flex items-center justify-between pr-20 mb-4">
+                  <div className="flex items-center justify-between mb-4">
                     {/* Coin Info */}
                     <div className="flex items-center space-x-4">
                       <div className="relative">
@@ -526,7 +526,7 @@ Keep response under 200 words. Use emojis. Focus on actionable advice.`;
                     </div>
 
                     {/* Price Info */}
-                    <div className="text-right">
+                    <div className="text-right ">
                       <div className="text-lg font-black text-white mb-1">
                         {formatPrice(coin.priceUsd)}
                       </div>
