@@ -299,12 +299,12 @@ function TelegramMiniApp() {
   const renderHomeContent = () => (
     <div className="space-y-6">
       {/* <EarningTimer /> */}
-      <SocialTask />
-      <NavigationButtons
+      {/* <SocialTask /> */}
+      {/* <NavigationButtons
         setActiveTab={handleTabNavigation}
         earningTimer={earningTimer}
         startEarningTimer={startEarningTimer}
-      />
+      /> */}
       <CryptoNewsSentra/>
       <div className="flex justify-between items-center">
         <h2 className="text-white text-xl font-bold">Market Intelligence</h2>
