@@ -72,15 +72,15 @@ export default function QuantoraBottomNav({ activeTab, setActiveTab }) {
 
   return (
     <motion.div 
-      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
+      className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
     >
-      <div className="glass glass-p px-3 py-2 rounded-full shadow-2xl shadow-black/20">
+      <div className="status-indicator backdrop-blur-md px-1.5 py-1 rounded-xl shadow-2xl shadow-black/20">
         <div className="">
           <nav className={cn(
-            "flex justify-center items-center transition-all duration-300",
+            "flex justify-between items-center transition-all duration-300",
             isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
           )}>
             {navItems.map((item, index) => {
