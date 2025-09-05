@@ -283,8 +283,8 @@ function TelegramMiniApp() {
 
   const TopNav = () => (
     <div>
-      <div className="w-full flex justify-between items-center py-4 px-2">
-        <Image src="/logo.png" alt="Logo" width={150} height={50} priority />
+      <div className="w-full flex justify-between items-center pb-4 px-2">
+        <Image src="/logo.png" alt="Logo" width={190} height={80} priority />
         <div className="text-right">
           <p className="text-gray-300 text-sm">Welcome</p>
           <p className="text-white text-lg font-bold">
