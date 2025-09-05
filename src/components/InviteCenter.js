@@ -16,6 +16,7 @@ import {
 } from 'react-icons/hi';
 import { LuBrainCircuit } from "react-icons/lu";
 import { AiOutlineTrophy } from "react-icons/ai";
+import Image from 'next/image';
 
 function SentraInviteCenter() {
   const [inviteCode] = useState('SENTRA2025');
@@ -111,70 +112,18 @@ Join now: ${inviteLink}`;
             }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <LuBrainCircuit className="w-10 h-10 text-white" />
+            <Image src='/agent/agentlogo.png' alt='logo' width={100} height={100}/>
           </motion.div>
 
-          <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-xl font-bold text-cyan-400 mb-2">
             SENTRA INVITE CENTER
           </h1>
-          <p className="text-purple-400 font-bold text-sm uppercase tracking-wider mb-4">
+          <p className="text-purple-400 font-semibold text-sm uppercase tracking-wider mb-4">
             Build Your Intelligence Network
           </p>
-          <p className="text-white/90 text-base max-w-sm mx-auto">
+          <p className="text-white/90 text-xs text-balance max-w-sm mx-auto">
             Invite fellow crypto analysts and earn rewards together on the world's most advanced sentiment intelligence platform
           </p>
-        </div>
-      </motion.div>
-
-      {/* Stats Dashboard */}
-      <motion.div 
-        className="glass mb-6 relative overflow-hidden"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-blue-500/10" />
-        <div className="relative">
-          <div className="text-center mb-4">
-            <h3 className="text-xl font-bold text-green-400 flex items-center justify-center gap-2">
-              <HiOutlineChartBar className="w-6 h-6" />
-              Your Network Stats
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {/* Total Invites */}
-            <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '20px' }}>
-              <motion.div 
-                className="text-3xl font-black text-cyan-400 mb-2"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                {totalInvites}
-              </motion.div>
-              <div className="text-gray-400 text-sm font-bold uppercase">Network Size</div>
-              <div className="flex items-center justify-center gap-1 mt-2">
-                <HiOutlineUsers className="w-4 h-4 text-cyan-400" />
-                <span className="text-cyan-400 text-xs font-bold">Active Analysts</span>
-              </div>
-            </div>
-
-            {/* Earned Credits */}
-            <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '20px' }}>
-              <motion.div 
-                className="text-3xl font-black text-green-400 mb-2"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-              >
-                {earnedCredits.toLocaleString()}
-              </motion.div>
-              <div className="text-gray-400 text-sm font-bold uppercase">Credits Earned</div>
-              <div className="flex items-center justify-center gap-1 mt-2">
-                <HiSparkles className="w-4 h-4 text-green-400" />
-                <span className="text-green-400 text-xs font-bold">Total Rewards</span>
-              </div>
-            </div>
-          </div>
         </div>
       </motion.div>
 
@@ -282,7 +231,7 @@ Join now: ${inviteLink}`;
             ].map((item, index) => (
               <motion.div
                 key={index}
-                className="flex items-center gap-4 bg-gray-900 rounded-xl"
+                className="flex glass-dark items-center gap-4 bg-gray-900 rounded-xl"
                 style={{ padding: '16px' }}
                 whileHover={{ x: 4 }}
                 transition={{ duration: 0.3 }}
@@ -292,9 +241,6 @@ Join now: ${inviteLink}`;
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`w-6 h-6 rounded-full ${item.bgColor} ${item.color} text-sm font-bold flex items-center justify-center`}>
-                      {item.step}
-                    </span>
                     <h4 className={`font-bold ${item.color}`}>
                       {item.title}
                     </h4>
@@ -325,19 +271,19 @@ Join now: ${inviteLink}`;
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+            <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
               <div className="text-2xl font-black text-cyan-400 mb-2">100</div>
               <div className="text-xs text-gray-400 font-bold uppercase mb-1">Credits</div>
               <div className="text-cyan-400 text-xs font-bold">Per Invite</div>
             </div>
             
-            <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+            <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
               <div className="text-2xl font-black text-purple-400 mb-2">1K</div>
               <div className="text-xs text-gray-400 font-bold uppercase mb-1">Bonus</div>
               <div className="text-purple-400 text-xs font-bold">At 10 Invites</div>
             </div>
             
-            <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+            <div className="text-center glass-light bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
               <div className="text-2xl font-black text-green-400 mb-2">VIP</div>
               <div className="text-xs text-gray-400 font-bold uppercase mb-1">Status</div>
               <div className="text-green-400 text-xs font-bold">Premium Access</div>
@@ -351,7 +297,7 @@ Join now: ${inviteLink}`;
         {/* Primary Invite Button */}
         <motion.button
           onClick={handleInviteShare}
-          className="w-full bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 hover:from-cyan-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
+          className="w-full glass-button bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 hover:from-cyan-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           style={{ height: '60px' }}
@@ -359,7 +305,6 @@ Join now: ${inviteLink}`;
           <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
           <HiOutlineShare className="w-6 h-6 relative z-10" />
           <span className="text-lg font-bold relative z-10">Share SENTRA AI</span>
-          <HiSparkles className="w-5 h-5 relative z-10" />
         </motion.button>
 
         {/* Secondary Copy Button */}
@@ -394,12 +339,11 @@ Join now: ${inviteLink}`;
         <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
           <HiOutlineStar className="w-4 h-4 text-yellow-400" />
           <span>Powered by SENTRA AI Intelligence Platform</span>
-          <HiOutlineStar className="w-4 h-4 text-yellow-400" />
         </div>
       </motion.div>
 
       {/* Bottom Safe Area */}
-      <div style={{ height: '80px' }}></div>
+      <div style={{ height: '150px' }}></div>
     </div>
   );
 }
