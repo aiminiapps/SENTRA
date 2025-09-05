@@ -11,14 +11,14 @@ import {
   HiOutlineGift,
   HiOutlineHeart,
   HiOutlineStar,
-  HiPlay,
+  HiOutlineLightningBolt,
   HiOutlineChartBar
 } from 'react-icons/hi';
 import { LuBrainCircuit } from "react-icons/lu";
-import { HiOutlineTrophy } from "react-icons/hi2";
+import { AiOutlineTrophy } from "react-icons/ai";
 
-function QuantoraInviteCenter() {
-  const [inviteCode] = useState('QTRA2025');
+function SentraInviteCenter() {
+  const [inviteCode] = useState('SENTRA2025');
   const [copySuccess, setCopySuccess] = useState(false);
   const [isWebApp, setIsWebApp] = useState(false);
   const [totalInvites, setTotalInvites] = useState(0);
@@ -27,14 +27,12 @@ function QuantoraInviteCenter() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsWebApp(window.Telegram?.WebApp ? true : false);
-      // Initialize Telegram WebApp
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
       }
-      // Simulate user data
-      setTotalInvites(Math.floor(Math.random() * 12) + 3);
-      setEarnedCredits(Math.floor(Math.random() * 5000) + 1500);
+      setTotalInvites(Math.floor(Math.random() * 15) + 8);
+      setEarnedCredits(Math.floor(Math.random() * 8000) + 2500);
     }
   }, []);
 
@@ -48,361 +46,362 @@ function QuantoraInviteCenter() {
     }
   };
 
-  const generateInviteLink = () => {
-    return 'https://t.me/Quantora_Research_Bot';
-  };
+  const generateInviteLink = () => 'https://t.me/SentraAI_Bot';
 
   const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(inviteCode);
       setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      setTimeout(() => setCopySuccess(false), 2500);
       triggerHaptic('notification', 'success');
     } catch (err) {
-      console.error('Failed to copy:', err);
       triggerHaptic('notification', 'error');
     }
   };
 
-  const handleInviteResearchers = () => {
+  const handleInviteShare = () => {
     const inviteLink = generateInviteLink();
-    const shareText = `🤖 Join me on Quantora AI Research Platform!
+    const shareText = `Join SENTRA AI - Next-Gen Crypto Intelligence Platform!
 
-🔬 Get institutional-grade crypto analysis
-📊 Access advanced AI research agents  
-💎 Earn research credits through missions
-🎯 Unlock premium fundamental insights
+Access cutting-edge AI research agents, unlock premium sentiment analysis, and earn rewards through intelligent trading insights.
 
-Use my invite code: ${inviteCode}
+My invite code: ${inviteCode}
 
 Join now: ${inviteLink}`;
 
     if (window.Telegram?.WebApp) {
-      // Use Telegram's native sharing
       window.Telegram.WebApp.openTelegramLink(
         `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`
       );
+    } else if (navigator.share) {
+      navigator.share({
+        title: 'Join SENTRA AI Platform',
+        text: shareText,
+        url: inviteLink
+      });
     } else {
-      // Fallback for web
-      if (navigator.share) {
-        navigator.share({
-          title: 'Join Quantora Research Platform',
-          text: shareText,
-          url: inviteLink
-        });
-      } else {
-        // Copy to clipboard as fallback
-        navigator.clipboard.writeText(shareText);
-        alert('Invite message copied to clipboard!');
-      }
+      navigator.clipboard.writeText(shareText);
+      alert('Invite message copied to clipboard!');
     }
     triggerHaptic('impact', 'medium');
   };
 
-  const inviteSteps = [
-    {
-      id: 1,
-      title: 'Share Your Research Link',
-      description: 'Invite fellow analysts and investors to join Quantora\'s AI-powered research platform.',
-      icon: HiOutlineShare,
-      color: 'lime-400',
-      gradient: 'from-lime-400 to-green-500'
-    },
-    {
-      id: 2,
-      title: 'Friends Join Research Network',
-      description: 'They start using AI agents, conducting fundamental analysis, and earning research credits.',
-      icon: HiOutlineUsers,
-      color: 'cyan-400',
-      gradient: 'from-cyan-400 to-blue-500'
-    },
-    {
-      id: 3,
-      title: '1 Researcher = 1 Research Credit',
-      description: 'Each successful referral grants you premium research credits to unlock advanced AI analysis.',
-      icon: HiOutlineTrophy,
-      color: 'violet-400',
-      gradient: 'from-violet-400 to-pink-500'
-    }
-  ];
-
   return (
-    <div className="pb-20">
-      {/* Enhanced Header */}
+    <div className="min-h-screen text-white">
+      {/* Hero Section */}
       <motion.div 
-        className="glass hidden glass-p mb-6"
+        className="glass mb-6 relative overflow-hidden"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="p-3">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div>
-                <h1 className="text-2xl font-black tektur text-white leading-none mb-1">
-                  Research Network
-                </h1>
-              </div>
-            </div>
-            
-            <div className="text-right">
-              <div className="text-lg font-black text-lime-400">
-                {totalInvites}
-              </div>
-              <div className="text-xs text-white/70 font-semibold uppercase tracking-wide">
-                Invited
-              </div>
-            </div>
-          </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/10 to-pink-500/5" />
+        <div className="relative text-center">
+          {/* Animated Header Icon */}
+          <motion.div 
+            className="w-20 h-20 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4"
+            whileHover={{ scale: 1.05, rotate: 10 }}
+            animate={{ 
+              boxShadow: [
+                '0 0 20px rgba(56, 189, 248, 0.4)',
+                '0 0 30px rgba(147, 51, 234, 0.5)',
+                '0 0 40px rgba(236, 72, 153, 0.4)',
+                '0 0 20px rgba(56, 189, 248, 0.4)'
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            <LuBrainCircuit className="w-10 h-10 text-white" />
+          </motion.div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-gray-900/30 backdrop-blur-sm mb-4">
-            <div className="text-center">
-              <div className="text-lime-400 font-black text-lg">{totalInvites}</div>
-              <div className="text-white/70 text-xs font-semibold uppercase">Total Invites</div>
-            </div>
-            <div className="text-center">
-              <div className="text-cyan-400 font-black text-lg">{earnedCredits.toLocaleString()}</div>
-              <div className="text-white/70 text-xs font-semibold uppercase">Credits Earned</div>
-            </div>
-          </div>
-
-          <p className="text-white/90 text-sm leading-relaxed">
-            Share Quantora with fellow analysts and earn research credits together
+          <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            SENTRA INVITE CENTER
+          </h1>
+          <p className="text-purple-400 font-bold text-sm uppercase tracking-wider mb-4">
+            Build Your Intelligence Network
+          </p>
+          <p className="text-white/90 text-base max-w-sm mx-auto">
+            Invite fellow crypto analysts and earn rewards together on the world's most advanced sentiment intelligence platform
           </p>
         </div>
       </motion.div>
 
-      {/* Character Illustration */}
+      {/* Stats Dashboard */}
       <motion.div 
-        className="glass glass-p mb-6"
+        className="glass mb-6 relative overflow-hidden"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="p-3">
-          <motion.div
-            className="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-lime-400/20 to-cyan-400/20 rounded-full flex items-center justify-center"
-            animate={{ 
-              scale: [1, 1.05, 1],
-              rotate: [0, 5, -5, 0] 
-            }}
-            transition={{ duration: 4, repeat: Infinity }}
-          >
-            <div className="w-20 h-20 bg-gradient-to-br from-lime-400 to-cyan-400 rounded-full flex items-center justify-center">
-              <HiOutlineUsers className="w-10 h-10 text-white" />
-            </div>
-          </motion.div>
-          <h3 className="text-lg font-black tektur text-white mb-2">
-            Build Your Research Network
-          </h3>
-          <p className="text-white/80 text-sm">
-            Connect with fellow crypto researchers and analysts
-          </p>
-        </div>
-      </motion.div>
-
-      {/* How It Works Steps */}
-      <motion.div 
-        className="mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <h3 className="text-xl font-semibold text-white">How It Works</h3>
-        </div>
-
-        <div className="space-y-4">
-          {inviteSteps.map((step, index) => {
-            const IconComponent = step.icon;
-            return (
-              <motion.div
-                key={step.id}
-                className="glass glass-p group"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + (index * 0.1) }}
-                whileHover={{ x: 4 }}
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-blue-500/10" />
+        <div className="relative">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-green-400 flex items-center justify-center gap-2">
+              <HiOutlineChartBar className="w-6 h-6" />
+              Your Network Stats
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {/* Total Invites */}
+            <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '20px' }}>
+              <motion.div 
+                className="text-3xl font-black text-cyan-400 mb-2"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                <div className={`p-3`}>
-                  <div className="flex items-start space-x-4">
-                    <motion.div 
-                      className={`
-                        w-12 h-12 bg-gradient-to-r ${step.gradient} rounded-2xl 
-                        flex items-center justify-center shadow-lg flex-shrink-0
-                      `}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <IconComponent className="w-6 h-6 text-white" />
-                    </motion.div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className={`font-black text-${step.color} text-lg`}>
-                          {step.title}
-                        </h4>
-                      </div>
-                      <p className="text-white/90 text-sm leading-relaxed">
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                {totalInvites}
               </motion.div>
-            );
-          })}
+              <div className="text-gray-400 text-sm font-bold uppercase">Network Size</div>
+              <div className="flex items-center justify-center gap-1 mt-2">
+                <HiOutlineUsers className="w-4 h-4 text-cyan-400" />
+                <span className="text-cyan-400 text-xs font-bold">Active Analysts</span>
+              </div>
+            </div>
+
+            {/* Earned Credits */}
+            <div className="bg-gray-900 rounded-xl text-center" style={{ padding: '20px' }}>
+              <motion.div 
+                className="text-3xl font-black text-green-400 mb-2"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+              >
+                {earnedCredits.toLocaleString()}
+              </motion.div>
+              <div className="text-gray-400 text-sm font-bold uppercase">Credits Earned</div>
+              <div className="flex items-center justify-center gap-1 mt-2">
+                <HiSparkles className="w-4 h-4 text-green-400" />
+                <span className="text-green-400 text-xs font-bold">Total Rewards</span>
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
 
       {/* Invite Code Section */}
       <motion.div 
-        className="glass glass-p mb-6"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6 }}
+        className="glass mb-6 relative overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
       >
-        <div className="p-3">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <HiOutlineGift className="w-5 h-5 text-violet-400" />
-              <h3 className="text-lg font-black tektur text-white">
-                Your Research Invite Code
-              </h3>
-            </div>
-            
-            <motion.div 
-              className="relative p-4 bg-gray-900/50 rounded-2xl border-2 border-dashed border-lime-400/50 mb-4"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="font-mono text-2xl text-lime-400 tracking-wider font-black">
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-orange-500/10" />
+        <div className="relative">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-yellow-400 flex items-center justify-center gap-2">
+              <HiOutlineGift className="w-6 h-6" />
+              Your Exclusive Invite Code
+            </h3>
+          </div>
+          
+          {/* Interactive Invite Code */}
+          <motion.div 
+            className="relative bg-gray-900 rounded-xl overflow-hidden cursor-pointer group"
+            onClick={handleCopyCode}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ padding: '24px' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-orange-400/20 to-red-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative text-center">
+              <div className="font-mono text-4xl font-black text-yellow-400 tracking-widest mb-2">
                 {inviteCode}
               </div>
+              <div className="text-sm text-gray-400 font-semibold">
+                Tap to copy • Share with friends
+              </div>
+            </div>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 opacity-0"
+              animate={{ opacity: [0, 0.3, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+          </motion.div>
+
+          {/* Copy Success Feedback */}
+          <AnimatePresence>
+            {copySuccess && (
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-lime-400/10 to-cyan-400/10 rounded-2xl"
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </motion.div>
+                className="text-center mt-3"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+              >
+                <div className="flex items-center justify-center gap-2 text-green-400">
+                  <HiOutlineCheckCircle className="w-5 h-5" />
+                  <span className="font-bold">Code copied successfully!</span>
+                  <HiOutlineHeart className="w-4 h-4" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+
+      {/* How It Works */}
+      <motion.div 
+        className="glass mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <div className="">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold text-purple-400 flex items-center justify-center gap-2">
+              <HiOutlineLightningBolt className="w-6 h-6" />
+              How Invites Work
+            </h3>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                step: '1',
+                title: 'Share Your Link',
+                description: 'Send your invite code to crypto enthusiasts and analysts',
+                icon: HiOutlineShare,
+                color: 'text-cyan-400',
+                bgColor: 'bg-cyan-400/10'
+              },
+              {
+                step: '2',
+                title: 'Friends Join Network',
+                description: 'They register using your code and start using SENTRA AI',
+                icon: HiOutlineUsers,
+                color: 'text-purple-400',
+                bgColor: 'bg-purple-400/10'
+              },
+              {
+                step: '3',
+                title: 'Earn Rewards',
+                description: 'Get credits for each successful invite and unlock premium features',
+                icon: AiOutlineTrophy,
+                color: 'text-green-400',
+                bgColor: 'bg-green-400/10'
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                className="flex items-center gap-4 bg-gray-900 rounded-xl"
+                style={{ padding: '16px' }}
+                whileHover={{ x: 4 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className={`w-12 h-12 rounded-full ${item.bgColor} flex items-center justify-center flex-shrink-0`}>
+                  <item.icon className={`w-6 h-6 ${item.color}`} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`w-6 h-6 rounded-full ${item.bgColor} ${item.color} text-sm font-bold flex items-center justify-center`}>
+                      {item.step}
+                    </span>
+                    <h4 className={`font-bold ${item.color}`}>
+                      {item.title}
+                    </h4>
+                  </div>
+                  <p className="text-gray-300 text-sm">
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Rewards Tier */}
+      <motion.div 
+        className="glass mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+      >
+        <div className="">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-orange-400 flex items-center justify-center gap-2">
+              <HiOutlineStar className="w-6 h-6" />
+              Reward Tiers
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+              <div className="text-2xl font-black text-cyan-400 mb-2">100</div>
+              <div className="text-xs text-gray-400 font-bold uppercase mb-1">Credits</div>
+              <div className="text-cyan-400 text-xs font-bold">Per Invite</div>
+            </div>
             
-            <p className="text-white/80 text-sm">
-              Share this code with fellow researchers to earn credits
-            </p>
+            <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+              <div className="text-2xl font-black text-purple-400 mb-2">1K</div>
+              <div className="text-xs text-gray-400 font-bold uppercase mb-1">Bonus</div>
+              <div className="text-purple-400 text-xs font-bold">At 10 Invites</div>
+            </div>
+            
+            <div className="text-center bg-gray-900 rounded-xl" style={{ padding: '16px' }}>
+              <div className="text-2xl font-black text-green-400 mb-2">VIP</div>
+              <div className="text-xs text-gray-400 font-bold uppercase mb-1">Status</div>
+              <div className="text-green-400 text-xs font-bold">Premium Access</div>
+            </div>
           </div>
         </div>
       </motion.div>
 
       {/* Action Buttons */}
-      <motion.div 
-        className="space-y-4 mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-      >
+      <div className="space-y-4">
+        {/* Primary Invite Button */}
         <motion.button
-          onClick={handleInviteResearchers}
-          className="glass-button w-full !py-5 flex items-center justify-center gap-3 shadow-xl shadow-lime-400/30"
+          onClick={handleInviteShare}
+          className="w-full bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 hover:from-cyan-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
+          style={{ height: '60px' }}
         >
-          <span className="text-lg font-black tektur">Invite Researchers</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+          <HiOutlineShare className="w-6 h-6 relative z-10" />
+          <span className="text-lg font-bold relative z-10">Share SENTRA AI</span>
+          <HiSparkles className="w-5 h-5 relative z-10" />
         </motion.button>
 
+        {/* Secondary Copy Button */}
         <motion.button
           onClick={handleCopyCode}
-          className={`
-            glass-button w-full !py-4 flex items-center justify-center gap-3 transition-all
-            ${copySuccess ? 'shadow-green-500/30' : 'shadow-violet-400/30'}
-          `}
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl flex items-center justify-center gap-3 transition-all duration-300"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          style={{ height: '50px' }}
         >
-          <AnimatePresence mode="wait">
-            {copySuccess ? (
-              <motion.div
-                key="success"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                className="flex items-center gap-2"
-              >
-                <HiOutlineCheckCircle className="w-5 h-5 text-green-400" />
-                <span className="font-bold text-green-400">Code Copied!</span>
-                <HiOutlineHeart className="w-4 h-4 text-green-400" />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="copy"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                className="flex items-center gap-2"
-              >
-                <HiOutlineClipboard className="w-5 h-5" />
-                <span className="font-bold">Copy Invite Code</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {copySuccess ? (
+            <>
+              <HiOutlineCheckCircle className="w-5 h-5 text-green-400" />
+              <span className="text-green-400">Code Copied!</span>
+            </>
+          ) : (
+            <>
+              <HiOutlineClipboard className="w-5 h-5" />
+              <span>Copy Invite Code</span>
+            </>
+          )}
         </motion.button>
-      </motion.div>
-
-      {/* Rewards Showcase */}
-      <motion.div 
-        className="glass glass-p mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0 }}
-      >
-        <div className="p-3">
-          <div className="text-center mb-4">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <HiOutlineTrophy className="w-5 h-5 text-lime-400" />
-              <h4 className="text-lg font-black tektur text-white">
-                Referral Rewards
-              </h4>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center p-3 rounded-xl bg-lime-400/10 border border-lime-400/20">
-              <div className="text-lime-400 font-black text-lg mb-1">1</div>
-              <div className="text-white/70 text-xs font-semibold uppercase">Credit</div>
-              <div className="text-lime-400 text-xs font-bold mt-1">Per Invite</div>
-            </div>
-            
-            <div className="text-center p-3 rounded-xl bg-cyan-400/10 border border-cyan-400/20">
-              <div className="text-cyan-400 font-black text-lg mb-1">5</div>
-              <div className="text-white/70 text-xs font-semibold uppercase">Bonus</div>
-              <div className="text-cyan-400 text-xs font-bold mt-1">At 10 Invites</div>
-            </div>
-            
-            <div className="text-center p-3 rounded-xl bg-violet-400/10 border border-violet-400/20">
-              <div className="text-violet-400 font-black text-lg mb-1">∞</div>
-              <div className="text-white/70 text-xs font-semibold uppercase">Premium</div>
-              <div className="text-violet-400 text-xs font-bold mt-1">VIP Status</div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+      </div>
 
       {/* Footer */}
       <motion.div 
-        className="text-center"
+        className="text-center mt-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
+        transition={{ delay: 1.0 }}
       >
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <HiOutlineStar className="w-4 h-4 text-lime-400" />
-          <p className="text-white/80 text-sm font-semibold">
-            Share Quantora Research Platform
-          </p>
-          <HiOutlineStar className="w-4 h-4 text-lime-400" />
+        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+          <HiOutlineStar className="w-4 h-4 text-yellow-400" />
+          <span>Powered by SENTRA AI Intelligence Platform</span>
+          <HiOutlineStar className="w-4 h-4 text-yellow-400" />
         </div>
       </motion.div>
-      <div className='h-14'/>
+
+      {/* Bottom Safe Area */}
+      <div style={{ height: '80px' }}></div>
     </div>
   );
 }
 
-export default QuantoraInviteCenter;
+export default SentraInviteCenter;
