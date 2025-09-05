@@ -46,9 +46,9 @@ export const metadata = {
     "format-detection": "telephone=no",
   },
   icons: {
-    icon: "/agent/sentralogo.png",
-    shortcut: "/agent/sentralogo.png",
-    apple: "/agent/sentralogo.png",
+    icon: "/agent/agentlogo.png",
+    shortcut: "/agent/agentlogo.png",
+    apple: "/agent/agentlogo.png",
   },
 };
 
@@ -60,8 +60,8 @@ export default function RootLayout({ children }) {
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
-        <link rel="icon" href="/agent/sentralogo.png" />
-        <link rel="apple-touch-icon" href="/agent/sentralogo.png" />
+        <link rel="icon" href="/agent/agentlogo.png" />
+        <link rel="apple-touch-icon" href="/agent/agentlogo.png" />
       </head>
       <body className="antialiased min-h-screen bg-[#0B0C10] flex flex-col">
         {children}
