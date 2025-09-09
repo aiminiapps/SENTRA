@@ -11,11 +11,11 @@ import {
   Zap, 
   Shield, 
   AlertTriangle,
-  ExternalLink,
   Clock,
   Activity,
   Target,
-  BarChart3
+  BarChart3,
+  RefreshCw
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -24,6 +24,7 @@ const CryptoNewsSentra = () => {
   const [selectedNews, setSelectedNews] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGeneratingNews, setIsGeneratingNews] = useState(false);
 
   // Haptic feedback for Telegram
   const vibrate = () => {
@@ -32,120 +33,175 @@ const CryptoNewsSentra = () => {
     }
   };
 
-  // Generate mock news data with proper structure
-  const generateMockNews = () => {
-    const newsItems = [
-      {
-        id: 'news-1',
-        title: "Bitcoin ETF Approval Drives Institutional Adoption",
-        description: "Major financial institutions are rushing to offer Bitcoin ETF products as regulatory clarity improves market confidence and accessibility.",
-        url: "https://example.com/bitcoin-etf-news",
-        author: "CryptoTimes",
-        publishedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min ago
-        category: 'Bitcoin'
-      },
-      {
-        id: 'news-2', 
-        title: "Ethereum Layer 2 Solutions See Record Transaction Volume",
-        description: "Polygon, Arbitrum, and Optimism process millions of transactions as users seek lower gas fees and faster settlement times.",
-        url: "https://example.com/ethereum-l2-volume",
-        author: "DeFi Weekly",
-        publishedAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 min ago
-        category: 'Ethereum'
-      },
-      {
-        id: 'news-3',
-        title: "Central Bank Digital Currencies Gain Global Momentum", 
-        description: "Over 90 countries are now exploring or piloting CBDCs as digital payment infrastructure becomes a national priority worldwide.",
-        url: "https://example.com/cbdc-momentum",
-        author: "FinTech Report",
-        publishedAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
-        category: 'CBDC'
-      },
-      {
-        id: 'news-4',
-        title: "DeFi Protocol Launches Cross-Chain Yield Farming",
-        description: "Revolutionary multi-chain architecture enables seamless yield farming across Ethereum, Solana, and Avalanche networks with automated strategies.",
-        url: "https://example.com/defi-cross-chain",
-        author: "DeFi Pulse",
-        publishedAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(), // 1.5 hours ago
-        category: 'DeFi'
-      },
-      {
-        id: 'news-5',
-        title: "Regulatory Framework Provides Clarity for Crypto Markets",
-        description: "New comprehensive guidelines from financial regulators establish clear operating standards for cryptocurrency exchanges and digital asset services.",
-        url: "https://example.com/crypto-regulation",
-        author: "Regulatory News",
-        publishedAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(), // 2 hours ago
-        category: 'Regulation'
-      },
-      {
-        id: 'news-6',
-        title: "NFT Gaming Sector Experiences Renaissance",
-        description: "Major gaming studios announce blockchain integration plans as play-to-earn mechanics and digital ownership drive new user adoption waves.",
-        url: "https://example.com/nft-gaming-renaissance", 
-        author: "GameFi Today",
-        publishedAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(), // 2.5 hours ago
-        category: 'NFT'
-      }
+  // Generate authentic cryptocurrency news using LLM
+  const generateNewsWithLLM = async () => {
+    setIsGeneratingNews(true);
+    
+    const newsPrompts = [
+      "Bitcoin institutional adoption news",
+      "Ethereum Layer 2 scaling solutions update",
+      "DeFi protocol security audit results", 
+      "Central bank digital currency development",
+      "Cryptocurrency regulation policy changes",
+      "NFT marketplace trading volume surge",
+      "Altcoin market performance analysis",
+      "Blockchain technology enterprise integration"
     ];
 
-    // Add dynamic metrics to each news item
-    return newsItems.map(item => ({
-      ...item,
-      trustScore: Math.floor(Math.random() * 40) + 60, // 60-100
-      riskLevel: Math.floor(Math.random() * 30) + 10, // 10-40
-      sentiment: ['bullish', 'bearish', 'neutral'][Math.floor(Math.random() * 3)],
-      impact: Math.floor(Math.random() * 50) + 50, // 50-100
-      confidence: Math.floor(Math.random() * 30) + 70, // 70-100
-      analyzed: false,
-      aiAnalysis: null
-    }));
-  };
+    const categories = ['Bitcoin', 'Ethereum', 'DeFi', 'Regulation', 'Altcoins', 'NFT', 'CBDC', 'Enterprise'];
+    const authors = ['CryptoTimes', 'DeFi Weekly', 'FinTech Report', 'Blockchain News', 'Digital Assets Today', 'Market Analysis Pro'];
 
-  // Fetch real crypto news with fallback
-  const fetchRealNews = async () => {
-    setIsLoading(true);
     try {
-      // Try to fetch real news first
-      const response = await fetch('https://api.coingecko.com/api/v3/news');
+      const generatedNews = [];
       
-      if (response.ok) {
+      for (let i = 0; i < 6; i++) {
+        const systemPrompt = `You are a professional cryptocurrency news generator for SENTRA. Create a realistic, authentic crypto news article.
+
+REQUIREMENTS:
+- Generate 1 complete news article with title and description
+- Make it sound authentic and current (September 2025)
+- Focus on: ${newsPrompts[i]}
+- Category: ${categories[i]}
+- Keep title under 80 characters
+- Keep description 120-180 characters
+- Use professional journalism tone
+- Include specific numbers, percentages, or metrics when relevant
+- Make it sound like breaking news or recent development
+
+FORMAT YOUR RESPONSE EXACTLY AS:
+TITLE: [Your news title here]
+DESCRIPTION: [Your news description here]
+
+NO additional text, explanations, or formatting.`;
+
+        const response = await fetch('/api/agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `Generate a ${categories[i]} news article about ${newsPrompts[i]}` }
+            ]
+          })
+        });
+
         const data = await response.json();
         
-        if (data.data && data.data.length > 0) {
-          const formattedNews = data.data.slice(0, 6).map((item, index) => ({
-            id: item.id || `real-news-${index}`,
-            title: item.title,
-            description: item.description || item.title,
-            url: item.url,
-            author: item.author || 'CryptoNews',
-            publishedAt: item.created_at,
-            category: ['Bitcoin', 'Ethereum', 'DeFi', 'Altcoins', 'Regulation'][Math.floor(Math.random() * 5)],
-            trustScore: Math.floor(Math.random() * 40) + 60,
-            riskLevel: Math.floor(Math.random() * 30) + 10,
+        if (data.reply) {
+          // Parse the LLM response
+          const lines = data.reply.split('\n').filter(line => line.trim());
+          let title = '';
+          let description = '';
+          
+          lines.forEach(line => {
+            if (line.startsWith('TITLE:')) {
+              title = line.replace('TITLE:', '').trim();
+            } else if (line.startsWith('DESCRIPTION:')) {
+              description = line.replace('DESCRIPTION:', '').trim();
+            }
+          });
+
+          // Fallback parsing if format isn't followed
+          if (!title && !description) {
+            const allText = data.reply.trim();
+            const sentences = allText.split('. ');
+            title = sentences[0]?.replace(/^(TITLE:|Breaking:|News:)/i, '').trim() || `${categories[i]} Market Update`;
+            description = sentences.slice(1, 3).join('. ') || allText.substring(0, 150);
+          }
+
+          const newsItem = {
+            id: `llm-news-${i}`,
+            title: title || `${categories[i]} Market Development`,
+            description: description || `Latest developments in the ${categories[i]} sector showing significant market activity.`,
+            author: authors[Math.floor(Math.random() * authors.length)],
+            publishedAt: new Date(Date.now() - (i * 15 + Math.random() * 30) * 60000).toISOString(),
+            category: categories[i],
+            trustScore: Math.floor(Math.random() * 25) + 75, // 75-100 for high quality
+            riskLevel: Math.floor(Math.random() * 30) + 10, // 10-40
             sentiment: ['bullish', 'bearish', 'neutral'][Math.floor(Math.random() * 3)],
-            impact: Math.floor(Math.random() * 50) + 50,
-            confidence: Math.floor(Math.random() * 30) + 70,
+            impact: Math.floor(Math.random() * 40) + 60, // 60-100
+            confidence: Math.floor(Math.random() * 20) + 80, // 80-100
             analyzed: false,
             aiAnalysis: null
-          }));
-          
-          setNewsData(formattedNews);
-          console.log('Loaded real news:', formattedNews.length, 'items');
-          return;
+          };
+
+          generatedNews.push(newsItem);
+        }
+
+        // Add delay between requests to avoid rate limiting
+        if (i < 5) {
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
-      
-      // Fallback to mock data if API fails
-      throw new Error('API response invalid');
+
+      return generatedNews;
       
     } catch (error) {
-      console.log('Using mock data due to API error:', error.message);
-      const mockNews = generateMockNews();
-      setNewsData(mockNews);
-      console.log('Loaded mock news:', mockNews.length, 'items');
+      console.error('LLM news generation failed:', error);
+      return [];
+    } finally {
+      setIsGeneratingNews(false);
+    }
+  };
+
+  // Fallback mock news if LLM fails
+  const generateFallbackNews = () => {
+    return [
+      {
+        id: 'fallback-1',
+        title: "Bitcoin Reaches New All-Time High Amid ETF Inflows",
+        description: "Institutional demand drives BTC to unprecedented levels as spot ETF assets under management surpass $50 billion milestone.",
+        author: "CryptoTimes",
+        publishedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+        category: 'Bitcoin',
+        trustScore: 92,
+        riskLevel: 15,
+        sentiment: 'bullish',
+        impact: 95,
+        confidence: 88,
+        analyzed: false,
+        aiAnalysis: null
+      },
+      {
+        id: 'fallback-2',
+        title: "Ethereum Mainnet Upgrade Reduces Gas Fees by 40%",
+        description: "Latest protocol improvement shows significant cost reductions across DeFi applications and NFT marketplaces.",
+        author: "DeFi Weekly", 
+        publishedAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+        category: 'Ethereum',
+        trustScore: 89,
+        riskLevel: 20,
+        sentiment: 'bullish',
+        impact: 82,
+        confidence: 91,
+        analyzed: false,
+        aiAnalysis: null
+      }
+    ];
+  };
+
+  // Fetch and generate news data
+  const fetchNewsData = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Generate news using LLM
+      const llmNews = await generateNewsWithLLM();
+      
+      if (llmNews.length > 0) {
+        setNewsData(llmNews);
+        console.log('Generated', llmNews.length, 'news articles using LLM');
+      } else {
+        // Use fallback news if LLM fails
+        const fallbackNews = generateFallbackNews();
+        setNewsData(fallbackNews);
+        console.log('Using fallback news data');
+      }
+      
+    } catch (error) {
+      console.error('News generation error:', error);
+      const fallbackNews = generateFallbackNews();
+      setNewsData(fallbackNews);
     }
     
     setIsLoading(false);
@@ -175,7 +231,7 @@ const CryptoNewsSentra = () => {
 
 Provide detailed markdown analysis with:
 - Market implications
-- Trading signals
+- Trading signals  
 - Risk warnings
 - Actionable insights
 
@@ -279,8 +335,14 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
     return '#ff3366';
   };
 
+  // Refresh news data
+  const handleRefresh = () => {
+    fetchNewsData();
+    vibrate();
+  };
+
   useEffect(() => {
-    fetchRealNews();
+    fetchNewsData();
   }, []);
 
   if (isLoading) {
@@ -292,7 +354,9 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
           animate={{ opacity: 1 }}
         >
           <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-cyan-400 font-semibold">Loading Intelligence...</p>
+          <p className="text-cyan-400 font-semibold">
+            {isGeneratingNews ? 'Generating Latest Intel...' : 'Loading Intelligence...'}
+          </p>
         </motion.div>
       </div>
     );
@@ -316,12 +380,23 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                 <h1 className="text-xl font-bold text-cyan-400">
                   SENTRA Intel
                 </h1>
-                <p className="text-xs text-gray-400">Real-time Market Pulse ({newsData.length} stories)</p>
+                <p className="text-xs text-gray-400">AI-Generated Market Pulse ({newsData.length} stories)</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-green-400">LIVE</span>
+            <div className="flex items-center gap-3">
+              <motion.button
+                onClick={handleRefresh}
+                className="p-2 bg-cyan-500/20 hover:bg-cyan-500/30 rounded-full transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                disabled={isLoading || isGeneratingNews}
+              >
+                <RefreshCw className={`w-4 h-4 text-cyan-400 ${isLoading ? 'animate-spin' : ''}`} />
+              </motion.button>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-400">AI LIVE</span>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -393,7 +468,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                     </div>
                   </div>
                   <p className="text-sm text-gray-400 leading-relaxed mb-3 -mt-3">
-                            {news.description}
+                    {news.description}
                   </p>
 
                   {/* Metrics Dashboard */}
@@ -499,7 +574,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                       >
-                        <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-4 mb-3">
+                        <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-4">
                           <ReactMarkdown 
                             rehypePlugins={[rehypeRaw]}
                             components={{
@@ -513,18 +588,6 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                             {news.aiAnalysis}
                           </ReactMarkdown>
                         </div>
-                        
-                        <button
-                          className="w-full py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(news.url, '_blank');
-                            vibrate();
-                          }}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Read Full Article
-                        </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
