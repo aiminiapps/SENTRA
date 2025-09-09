@@ -380,7 +380,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
                 <h1 className="text-xl font-bold text-cyan-400">
                   SENTRA Intel
                 </h1>
-                <p className="text-xs text-gray-400">AI-Generated Market Pulse ({newsData.length} stories)</p>
+                <p className="text-[10px] text-gray-400">AI-Generated Market Pulse ({newsData.length} stories)</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
