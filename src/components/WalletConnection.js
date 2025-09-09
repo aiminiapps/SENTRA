@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { useAccount, useBalance } from 'wagmi';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
@@ -17,7 +17,12 @@ import {
   Shield,
   Target,
   Activity,
-  TrendingUp
+  TrendingUp,
+  Cpu,
+  Signal,
+  Layers,
+  Database,
+  Orbit
 } from 'lucide-react';
 
 const SentraWalletSystem = ({ onComplete }) => {
@@ -26,7 +31,8 @@ const SentraWalletSystem = ({ onComplete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [showingDetails, setShowingDetails] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [connectionPulse, setConnectionPulse] = useState(0);
   
   // Wallet Hooks
   const { address, isConnected } = useAccount();
@@ -35,10 +41,16 @@ const SentraWalletSystem = ({ onComplete }) => {
   const tonWallet = useTonWallet();
   
   const ballRef = useRef(null);
+  const containerRef = useRef(null);
   
   // Computed Values
   const isWalletConnected = isConnected || tonWallet;
   const walletType = isConnected ? 'EVM' : tonWallet ? 'TON' : null;
+  
+  // Spring physics for smooth interactions
+  const springConfig = { stiffness: 400, damping: 30 };
+  const x = useSpring(position.x, springConfig);
+  const y = useSpring(position.y, springConfig);
   
   // Initialize floating position
   useEffect(() => {
@@ -47,10 +59,30 @@ const SentraWalletSystem = ({ onComplete }) => {
       const windowHeight = window.innerHeight;
       
       setPosition({
-        x: windowWidth - 80, // Right edge with margin
-        y: windowHeight / 2 - 32 // Vertically centered
+        x: windowWidth - 90,
+        y: windowHeight / 2 - 32
       });
     }
+  }, []);
+
+  // Mouse tracking for parallax effects
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    
+    if (phase === 'onboarding') {
+      window.addEventListener('mousemove', handleMouseMove);
+      return () => window.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [phase]);
+
+  // Connection pulse animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setConnectionPulse(prev => (prev + 1) % 100);
+    }, 50);
+    return () => clearInterval(interval);
   }, []);
 
   // Handle wallet connection or skip
@@ -71,7 +103,7 @@ const SentraWalletSystem = ({ onComplete }) => {
     setTimeout(() => {
       setPhase('floating');
       onComplete?.(true);
-    }, 1500);
+    }, 2000);
   };
 
   // Auto-transition when wallet connects
@@ -85,17 +117,17 @@ const SentraWalletSystem = ({ onComplete }) => {
   useEffect(() => {
     let timer;
     if (isExpanded && !isDragging) {
-      timer = setTimeout(() => setIsExpanded(false), 4000);
+      timer = setTimeout(() => setIsExpanded(false), 5000);
     }
     return () => clearTimeout(timer);
   }, [isExpanded, isDragging]);
 
   // Drag constraints for floating ball
   const dragConstraints = {
-    left: 0,
-    right: typeof window !== 'undefined' ? window.innerWidth - 64 : 0,
-    top: 0,
-    bottom: typeof window !== 'undefined' ? window.innerHeight - 64 : 0
+    left: 10,
+    right: typeof window !== 'undefined' ? window.innerWidth - 74 : 0,
+    top: 10,
+    bottom: typeof window !== 'undefined' ? window.innerHeight - 74 : 0
   };
 
   const getStatusColor = () => {
@@ -109,7 +141,7 @@ const SentraWalletSystem = ({ onComplete }) => {
   const formatBalance = () => {
     if (!balance) return '0.00';
     const value = parseFloat(balance.formatted);
-    return value.toFixed(value > 1 ? 2 : 4);
+    return value.toFixed(value > 1 ? 2 : 6);
   };
 
   const formatAddress = (addr) => {
@@ -117,171 +149,375 @@ const SentraWalletSystem = ({ onComplete }) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+  // Parallax transform
+  const parallaxX = useTransform(() => (mousePosition.x - window.innerWidth / 2) * 0.02);
+  const parallaxY = useTransform(() => (mousePosition.y - window.innerHeight / 2) * 0.02);
+
   // ONBOARDING PHASE
   if (phase === 'onboarding') {
     return (
       <motion.div
+        ref={containerRef}
         className="min-h-screen glass-content flex items-center justify-center relative overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0, scale: 0.8 }}
-        transition={{ duration: 0.6 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+        transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        {/* Animated Background */}
+        {/* Enhanced Animated Background */}
         <motion.div
-          className="absolute inset-0 opacity-10"
-          animate={{
-            background: [
-              "radial-gradient(circle at 30% 40%, #35C6FF 0%, transparent 50%)",
-              "radial-gradient(circle at 70% 60%, #00F5FF 0%, transparent 50%)",
-              "radial-gradient(circle at 40% 80%, #FFD166 0%, transparent 50%)",
-              "radial-gradient(circle at 30% 40%, #35C6FF 0%, transparent 50%)"
-            ]
+          className="absolute inset-0"
+          style={{ 
+            x: parallaxX,
+            y: parallaxY
           }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-
-        <div className="glass max-w-md w-full mx-4">
-          <div className="glass-content p-8 text-center">
-            {/* Sentra Logo/Icon */}
+        >
+          {/* Floating orbs */}
+          {[...Array(6)].map((_, i) => (
             <motion.div
-              className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 p-0.5"
+              key={i}
+              className="absolute w-32 h-32 rounded-full opacity-5"
+              style={{
+                background: `radial-gradient(circle, ${['#35C6FF', '#00F5FF', '#FFD166'][i % 3]} 0%, transparent 70%)`,
+                left: `${20 + (i * 15)}%`,
+                top: `${10 + (i * 12)}%`,
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.05, 0.15, 0.05],
+                rotate: [0, 180, 360]
+              }}
+              transition={{
+                duration: 8 + i * 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.5
+              }}
+            />
+          ))}
+        </motion.div>
+
+        <div className="glass max-w-md w-full mx-4 relative z-10">
+          <div className="glass-content p-10 text-center">
+            {/* Enhanced Sentra Logo */}
+            <motion.div
+              className="relative w-32 h-32 mx-auto mb-8"
               animate={{ 
-                scale: [1, 1.05, 1],
-                rotate: [0, 5, -5, 0]
+                scale: [1, 1.03, 1],
+                rotate: [0, 2, -2, 0]
               }}
               transition={{ 
-                duration: 4,
+                duration: 6,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
             >
-              <div className="w-full h-full bg-background rounded-full flex items-center justify-center">
-                <Brain className="w-12 h-12 text-primary" />
-              </div>
+              {/* Outer ring */}
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-primary/30"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              />
+              
+              {/* Middle ring */}
+              <motion.div
+                className="absolute inset-2 rounded-full border border-primary/20"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              />
+              
+              {/* Core */}
+              <motion.div
+                className="absolute inset-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 p-0.5"
+                animate={{ 
+                  boxShadow: [
+                    "0 0 20px rgba(53, 198, 255, 0.3)",
+                    "0 0 40px rgba(53, 198, 255, 0.6)",
+                    "0 0 20px rgba(53, 198, 255, 0.3)"
+                  ]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <div className="w-full h-full bg-background rounded-full flex items-center justify-center">
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Brain className="w-12 h-12 text-primary" />
+                  </motion.div>
+                </div>
+              </motion.div>
+              
+              {/* Orbital dots */}
+              {[...Array(3)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-3 h-3 bg-primary rounded-full"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    marginLeft: '-6px',
+                    marginTop: '-6px',
+                  }}
+                  animate={{
+                    x: [0, 50 * Math.cos(i * 120 * Math.PI / 180), 0],
+                    y: [0, 50 * Math.sin(i * 120 * Math.PI / 180), 0],
+                    scale: [0.5, 1, 0.5],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    delay: i * 0.5,
+                    ease: "easeInOut"
+                  }}
+                />
+              ))}
             </motion.div>
 
-            {/* Title */}
-            <h1 className="terminal-header text-2xl mb-2 sentra-gradient-text">
-              SENTRA INTELLIGENCE
-            </h1>
+            {/* Enhanced Title with Glitch Effect */}
+            <motion.h1 
+              className="terminal-header text-3xl mb-3 relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <span className="sentra-gradient-text relative z-10">
+                SENTRA INTELLIGENCE
+              </span>
+              <motion.span
+                className="absolute inset-0 sentra-gradient-text opacity-30"
+                animate={{
+                  x: [0, -2, 2, 0],
+                  opacity: [0.3, 0.7, 0.3]
+                }}
+                transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3 }}
+              >
+                SENTRA INTELLIGENCE
+              </motion.span>
+            </motion.h1>
             
-            <p className="text-secondary font-semibold mb-2">
-              AI-Powered Crypto Sentiment Platform
-            </p>
-            
-            <p className="text-muted mb-8 text-sm leading-relaxed">
-              Monitor market emotions, detect pump & dumps, and trade with AI insights
-            </p>
-
-            {/* Feature highlights */}
-            <motion.div
-              className="grid grid-cols-3 gap-3 mb-8"
+            <motion.p 
+              className="text-secondary font-semibold mb-3 text-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <div className="glass-transaction text-center p-3">
-                <Eye className="w-5 h-5 text-primary mx-auto mb-1" />
-                <span className="text-xs">Scanner</span>
-              </div>
-              <div className="glass-transaction text-center p-3">
-                <Zap className="w-5 h-5 text-warning mx-auto mb-1" />
-                <span className="text-xs">Alerts</span>
-              </div>
-              <div className="glass-transaction text-center p-3">
-                <Target className="w-5 h-5 text-success mx-auto mb-1" />
-                <span className="text-xs">Insights</span>
-              </div>
+              AI-Powered Crypto Sentiment Platform
+            </motion.p>
+            
+            <motion.p 
+              className="text-muted mb-10 text-sm leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              Monitor market emotions, detect pump & dumps, and trade with cutting-edge AI insights
+            </motion.p>
+
+            {/* Enhanced Feature highlights */}
+            <motion.div
+              className="grid grid-cols-3 gap-4 mb-10"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, staggerChildren: 0.1 }}
+            >
+              {[
+                { icon: Eye, label: 'Scanner', color: 'text-primary' },
+                { icon: Zap, label: 'Alerts', color: 'text-warning' },
+                { icon: Target, label: 'Insights', color: 'text-success' }
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  className="glass-transaction text-center p-4 relative overflow-hidden"
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)"
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                >
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <item.icon className={`w-6 h-6 ${item.color} mx-auto mb-2`} />
+                  </motion.div>
+                  <span className="text-sm font-medium">{item.label}</span>
+                  
+                  {/* Hover glow effect */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg opacity-0"
+                    style={{ background: `linear-gradient(45deg, ${item.color.includes('primary') ? '#35C6FF' : item.color.includes('warning') ? '#FFD166' : '#10B981'}20, transparent)` }}
+                    whileHover={{ opacity: 1 }}
+                  />
+                </motion.div>
+              ))}
             </motion.div>
 
-            {/* Wallet Connection Highlight */}
+            {/* Enhanced Wallet Connection Highlight */}
             <motion.div
-              className="glass-alert p-4 mb-6"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
+              className="glass-alert p-6 mb-8 relative overflow-hidden"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
+              whileHover={{ scale: 1.02 }}
             >
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-6 h-6 text-warning flex-shrink-0" />
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-warning/5 to-primary/5"
+                animate={{ 
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              
+              <div className="flex items-start gap-4 relative z-10">
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 2, repeat: Infinity }
+                  }}
+                >
+                  <Sparkles className="w-8 h-8 text-warning flex-shrink-0" />
+                </motion.div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-primary mb-1">
+                  <p className="text-base font-bold text-primary mb-2">
                     Unlock Full Potential
                   </p>
-                  <p className="text-xs text-muted">
-                    Connect wallet to access personalized AI agents and portfolio analysis
+                  <p className="text-sm text-muted leading-relaxed">
+                    Connect your wallet to access personalized AI agents and portfolio analysis
                   </p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Action Buttons */}
-            <div className="space-y-4">
+            {/* Enhanced Action Buttons */}
+            <div className="space-y-5">
               {/* Connect Wallet Button */}
               <motion.button
                 onClick={handleConnect}
-                className="glass-button w-full flex items-center justify-center gap-3 relative overflow-hidden"
-                whileHover={{ scale: 1.02 }}
+                className="glass-button w-full flex items-center justify-center gap-4 relative overflow-hidden h-16 text-lg font-bold"
+                whileHover={{ 
+                  scale: 1.02,
+                  boxShadow: "0 20px 40px rgba(53, 198, 255, 0.3)"
+                }}
                 whileTap={{ scale: 0.98 }}
                 disabled={isWalletConnected}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
+                transition={{ delay: 0.8 }}
               >
+                {/* Animated background sweep */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
+                  animate={{ x: ['-200%', '200%'] }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
                 />
-                <Wallet className="w-5 h-5" />
+                
+                <motion.div
+                  animate={isWalletConnected ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.5, repeat: isWalletConnected ? 3 : 0 }}
+                >
+                  <Wallet className="w-6 h-6" />
+                </motion.div>
+                
                 {isWalletConnected ? (
                   <span>✓ Wallet Connected</span>
                 ) : (
                   <span>Connect Wallet</span>
                 )}
-                {!isWalletConnected && <ArrowRight className="w-4 h-4" />}
+                
+                {!isWalletConnected && (
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.div>
+                )}
               </motion.button>
 
-              {/* TON Connect for Telegram users */}
-              <div className="flex justify-center">
+              {/* TON Connect */}
+              <motion.div 
+                className="flex justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+              >
                 <TonConnectButton />
-              </div>
+              </motion.div>
 
               {/* Skip Button */}
               <motion.button
                 onClick={handleSkip}
-                className="glass-button-secondary w-full"
-                whileHover={{ scale: 1.02 }}
+                className="glass-button-secondary w-full h-14 text-base"
+                whileHover={{ 
+                  scale: 1.02,
+                  borderColor: "rgba(53, 198, 255, 0.5)"
+                }}
                 whileTap={{ scale: 0.98 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 1.0 }}
               >
                 Continue Without Wallet
               </motion.button>
             </div>
 
-            {/* Connection Success State */}
+            {/* Enhanced Connection Success State */}
             <AnimatePresence>
               {isWalletConnected && (
                 <motion.div
-                  className="glass-transaction p-4 mt-6"
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  className="glass-transaction p-6 mt-8 relative overflow-hidden"
+                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="flex items-center gap-2 text-success mb-2">
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-success/10 to-primary/10"
+                    animate={{ 
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  />
+                  
+                  <div className="flex items-center gap-3 text-success mb-3 relative z-10">
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 0.5, repeat: 3 }}
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        rotate: [0, 360, 0]
+                      }}
+                      transition={{ duration: 1, repeat: 3 }}
                     >
-                      <Shield className="w-5 h-5" />
+                      <Shield className="w-6 h-6" />
                     </motion.div>
-                    <span className="font-semibold">Connection Successful!</span>
+                    <span className="font-bold text-lg">Connection Successful!</span>
                   </div>
-                  <p className="text-xs text-muted">
+                  <p className="text-sm text-muted relative z-10">
                     Initializing personalized AI analysis...
                   </p>
+                  
+                  {/* Progress indicator */}
+                  <motion.div
+                    className="w-full h-1 bg-surface rounded-full mt-3 overflow-hidden"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-success to-primary rounded-full"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -291,236 +527,395 @@ const SentraWalletSystem = ({ onComplete }) => {
     );
   }
 
-  // FLOATING PHASE
+  // ENHANCED FLOATING PHASE
   return (
     <>
-      {/* Main Draggable Ball */}
+      {/* Main Enhanced Draggable Ball */}
       <motion.div
         ref={ballRef}
         drag
         dragConstraints={dragConstraints}
-        dragElastic={0.1}
+        dragElastic={0.15}
         onDragStart={() => {
           setIsDragging(true);
           setIsExpanded(false);
         }}
-        onDragEnd={() => setIsDragging(false)}
+        onDragEnd={(event, info) => {
+          setIsDragging(false);
+          
+          // Smart edge snapping
+          const newX = position.x + info.offset.x;
+          const windowWidth = window.innerWidth;
+          
+          if (newX < windowWidth / 3) {
+            setPosition(prev => ({ ...prev, x: 20 }));
+          } else if (newX > (windowWidth * 2) / 3) {
+            setPosition(prev => ({ ...prev, x: windowWidth - 84 }));
+          }
+        }}
         onTap={() => !isDragging && setIsExpanded(!isExpanded)}
         className="fixed z-50 cursor-grab active:cursor-grabbing select-none"
         style={{
           x: position.x,
           y: position.y,
-          width: 64,
-          height: 64
+          width: 72,
+          height: 72
         }}
-        initial={{ scale: 0, opacity: 0 }}
+        initial={{ scale: 0, opacity: 0, rotate: 180 }}
         animate={{ 
-          scale: isDragging ? 1.1 : 1,
+          scale: isDragging ? 1.15 : 1,
           opacity: 1,
-          rotate: isDragging ? 10 : 0
+          rotate: isDragging ? 15 : 0
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        whileHover={{ scale: 1.05 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 25,
+          scale: { duration: 0.2 },
+          rotate: { duration: 0.3 }
+        }}
+        whileHover={{ 
+          scale: 1.08,
+          transition: { duration: 0.2 }
+        }}
         whileTap={{ scale: 0.95 }}
       >
-        {/* Ball Container */}
+        {/* Enhanced Ball Container */}
         <motion.div
-          className="w-16 h-16 rounded-full relative overflow-hidden backdrop-blur-md border-2"
+          className="w-18 h-18 rounded-full relative overflow-hidden backdrop-blur-xl border-2"
           style={{ 
-            background: `linear-gradient(135deg, ${getStatusColor()}30, ${getStatusColor()}60)`,
+            background: `conic-gradient(from ${connectionPulse * 3.6}deg, ${getStatusColor()}40, ${getStatusColor()}80, ${getStatusColor()}40)`,
             borderColor: getStatusColor()
           }}
           animate={{
             boxShadow: [
-              `0 0 20px ${getStatusColor()}40`,
-              `0 0 30px ${getStatusColor()}70`,
-              `0 0 20px ${getStatusColor()}40`
+              `0 0 25px ${getStatusColor()}50`,
+              `0 0 45px ${getStatusColor()}80`,
+              `0 0 25px ${getStatusColor()}50`
             ]
           }}
-          transition={{ duration: 3, repeat: Infinity }}
+          transition={{ duration: 2.5, repeat: Infinity }}
         >
-          {/* Main Icon */}
-          <div className="absolute inset-2 rounded-full bg-background/90 flex items-center justify-center">
+          {/* Outer rotating ring */}
+          <motion.div
+            className="absolute inset-1 rounded-full border border-primary/30"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          />
+          
+          {/* Inner content area */}
+          <motion.div 
+            className="absolute inset-3 rounded-full bg-background/95 flex items-center justify-center"
+            animate={{
+              background: isDragging ? 
+                `radial-gradient(circle, ${getStatusColor()}20, rgba(11, 11, 12, 0.95))` :
+                'rgba(11, 11, 12, 0.95)'
+            }}
+          >
             <motion.div
               animate={{ 
                 rotate: balanceLoading ? 360 : 0,
-                scale: [1, 1.1, 1]
+                scale: isExpanded ? [1, 1.2, 1] : [1, 1.05, 1]
               }}
               transition={{ 
-                rotate: { duration: 1.5, repeat: balanceLoading ? Infinity : 0, ease: "linear" },
-                scale: { duration: 2, repeat: Infinity }
+                rotate: { duration: 2, repeat: balanceLoading ? Infinity : 0, ease: "linear" },
+                scale: { duration: 3, repeat: Infinity }
               }}
             >
               {isWalletConnected ? (
-                <Wallet className="w-6 h-6" style={{ color: getStatusColor() }} />
+                <Wallet className="w-7 h-7" style={{ color: getStatusColor() }} />
               ) : (
-                <WalletCards className="w-6 h-6" style={{ color: getStatusColor() }} />
+                <WalletCards className="w-7 h-7" style={{ color: getStatusColor() }} />
               )}
             </motion.div>
-          </div>
+          </motion.div>
 
-          {/* Status Dot */}
+          {/* Enhanced Status Indicators */}
           <motion.div
-            className="absolute top-1 right-1 w-3 h-3 rounded-full border border-background"
-            style={{ 
-              backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444'
-            }}
+            className="absolute top-1 right-1 w-4 h-4 rounded-full border-2 border-background"
+            style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
             animate={{
-              scale: [1, 1.3, 1],
+              scale: [1, 1.4, 1],
               opacity: [0.8, 1, 0.8]
             }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 1.8, repeat: Infinity }}
           />
 
-          {/* Activity Indicator */}
+          {/* Activity pulse */}
           {isWalletConnected && (
             <motion.div
-              className="absolute bottom-0 left-0 w-4 h-4 rounded-full bg-primary/30 flex items-center justify-center"
-              animate={{ scale: [0.8, 1.2, 0.8] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              className="absolute bottom-1 left-1 w-4 h-4 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: `${getStatusColor()}40` }}
+              animate={{ 
+                scale: [0.8, 1.3, 0.8],
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
             >
-              <Activity className="w-2 h-2 text-primary" />
+              <Activity className="w-2 h-2" style={{ color: getStatusColor() }} />
             </motion.div>
           )}
+
+          {/* Data flow indicators */}
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 rounded-full bg-primary/60"
+              style={{
+                left: '50%',
+                top: '50%',
+                marginLeft: '-2px',
+                marginTop: '-2px',
+              }}
+              animate={{
+                x: [0, 20 * Math.cos(i * 120 * Math.PI / 180), 0],
+                y: [0, 20 * Math.sin(i * 120 * Math.PI / 180), 0],
+                opacity: [0, 1, 0]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: i * 0.3,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
         </motion.div>
       </motion.div>
 
-      {/* Expanded Info Panel */}
+      {/* Enhanced Expanded Info Panel */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
             className="fixed z-40"
             style={{
-              x: position.x > window.innerWidth / 2 ? position.x - 220 : position.x + 80,
-              y: position.y - 50
+              x: position.x > window.innerWidth / 2 ? position.x - 240 : position.x + 90,
+              y: Math.max(10, position.y - 60)
             }}
             initial={{ 
               opacity: 0, 
               scale: 0.8, 
-              x: position.x > window.innerWidth / 2 ? 30 : -30,
-              y: 20
+              x: position.x > window.innerWidth / 2 ? 40 : -40,
+              y: 30
             }}
             animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
             exit={{ 
               opacity: 0, 
               scale: 0.8, 
-              x: position.x > window.innerWidth / 2 ? 30 : -30,
-              y: 20
+              x: position.x > window.innerWidth / 2 ? 40 : -40,
+              y: 30
             }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 500, 
+              damping: 30,
+              opacity: { duration: 0.2 }
+            }}
           >
-            <div 
-              className="glass w-56 border-2 shadow-2xl" 
+            <motion.div 
+              className="glass w-64 border-2 shadow-2xl relative overflow-hidden" 
               style={{ borderColor: getStatusColor() }}
+              animate={{
+                boxShadow: [
+                  `0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px ${getStatusColor()}30`,
+                  `0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px ${getStatusColor()}50`,
+                  `0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px ${getStatusColor()}30`
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
             >
-              <div className="glass-content p-5">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
+              {/* Animated background */}
+              <motion.div
+                className="absolute inset-0 opacity-5"
+                animate={{
+                  background: [
+                    `linear-gradient(45deg, ${getStatusColor()}30, transparent)`,
+                    `linear-gradient(135deg, ${getStatusColor()}30, transparent)`,
+                    `linear-gradient(225deg, ${getStatusColor()}30, transparent)`,
+                    `linear-gradient(315deg, ${getStatusColor()}30, transparent)`,
+                    `linear-gradient(45deg, ${getStatusColor()}30, transparent)`
+                  ]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              
+              <div className="glass-content p-6 relative z-10">
+                {/* Enhanced Header */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
                     <motion.div 
-                      className="w-3 h-3 rounded-full" 
+                      className="w-4 h-4 rounded-full relative" 
                       style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
-                    <span className="text-xs font-bold text-primary">SENTRA STATUS</span>
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        boxShadow: [
+                          `0 0 5px ${isWalletConnected ? '#00FF88' : '#FF4444'}`,
+                          `0 0 15px ${isWalletConnected ? '#00FF88' : '#FF4444'}`,
+                          `0 0 5px ${isWalletConnected ? '#00FF88' : '#FF4444'}`
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      {/* Pulse ring */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2"
+                        style={{ borderColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
+                        animate={{ 
+                          scale: [1, 2, 1],
+                          opacity: [0.5, 0, 0.5]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
+                    <span className="text-sm font-bold text-primary">SENTRA STATUS</span>
                   </div>
                   <motion.button
                     onClick={() => setIsExpanded(false)}
-                    className="w-6 h-6 rounded-full bg-surface flex items-center justify-center hover:bg-elevated transition-colors"
-                    whileHover={{ scale: 1.1 }}
+                    className="w-7 h-7 rounded-full bg-surface flex items-center justify-center hover:bg-elevated transition-colors"
+                    whileHover={{ 
+                      scale: 1.15,
+                      backgroundColor: "rgba(239, 68, 68, 0.2)"
+                    }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <X className="w-3 h-3 text-muted" />
+                    <X className="w-4 h-4 text-muted" />
                   </motion.button>
                 </div>
 
-                {/* Wallet Info */}
+                {/* Enhanced Wallet Info */}
                 {isWalletConnected ? (
                   <motion.div
-                    className="space-y-3"
+                    className="space-y-4"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ staggerChildren: 0.1 }}
                   >
-                    <div className="flex items-center justify-between py-2 border-b border-border-secondary">
-                      <span className="text-xs text-muted">Connection</span>
+                    <motion.div 
+                      className="flex items-center justify-between py-3 border-b border-border-secondary"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <span className="text-sm text-muted">Connection</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                        <span className="text-xs font-semibold text-success">
+                        <motion.div 
+                          className="w-2 h-2 bg-success rounded-full"
+                          animate={{ scale: [1, 1.5, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                        <span className="text-sm font-semibold text-success">
                           {walletType} Active
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
                     
                     {address && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted">Address</span>
-                        <span className="text-xs font-mono text-secondary">
+                      <motion.div 
+                        className="flex items-center justify-between"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        <span className="text-sm text-muted">Address</span>
+                        <motion.span 
+                          className="text-sm font-mono text-secondary px-2 py-1 bg-surface rounded"
+                          whileHover={{ scale: 1.05 }}
+                        >
                           {formatAddress(address)}
-                        </span>
-                      </div>
+                        </motion.span>
+                      </motion.div>
                     )}
                     
                     {balance && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted">Balance</span>
-                        <span className="text-xs font-semibold text-primary">
+                      <motion.div 
+                        className="flex items-center justify-between"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <span className="text-sm text-muted">Balance</span>
+                        <span className="text-sm font-semibold text-primary">
                           {formatBalance()} {balance.symbol}
                         </span>
-                      </div>
+                      </motion.div>
                     )}
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted">AI Status</span>
-                      <div className="flex items-center gap-1">
-                        <Brain className="w-3 h-3 text-primary" />
-                        <span className="text-xs font-semibold text-primary">Online</span>
+                    <motion.div 
+                      className="flex items-center justify-between"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <span className="text-sm text-muted">AI Status</span>
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Brain className="w-4 h-4 text-primary" />
+                        </motion.div>
+                        <span className="text-sm font-semibold text-primary">Online</span>
                       </div>
-                    </div>
+                    </motion.div>
                   </motion.div>
                 ) : (
                   <motion.div
-                    className="text-center py-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    className="text-center py-6"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
                   >
-                    <WalletCards className="w-8 h-8 text-muted mx-auto mb-3" />
-                    <p className="text-xs text-muted mb-1">No Wallet Connected</p>
-                    <p className="text-xs text-warning font-semibold">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 10, -10, 0]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <WalletCards className="w-12 h-12 text-muted mx-auto mb-4" />
+                    </motion.div>
+                    <p className="text-sm text-muted mb-2">No Wallet Connected</p>
+                    <p className="text-sm text-warning font-semibold">
                       Basic Features Only
                     </p>
                   </motion.div>
                 )}
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border-secondary">
-                  <motion.button 
-                    className="glass-transaction p-2 text-center hover:border-primary/50 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Eye className="w-4 h-4 mx-auto mb-1 text-primary" />
-                    <span className="text-xs">Scan</span>
-                  </motion.button>
-                  <motion.button 
-                    className="glass-transaction p-2 text-center hover:border-warning/50 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Zap className="w-4 h-4 mx-auto mb-1 text-warning" />
-                    <span className="text-xs">Alerts</span>
-                  </motion.button>
-                  <motion.button 
-                    className="glass-transaction p-2 text-center hover:border-success/50 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <TrendingUp className="w-4 h-4 mx-auto mb-1 text-success" />
-                    <span className="text-xs">Trends</span>
-                  </motion.button>
-                </div>
+                {/* Enhanced Quick Actions */}
+                <motion.div 
+                  className="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-border-secondary"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  {[
+                    { icon: Eye, label: 'Scan', color: 'text-primary', hoverColor: 'border-primary/50' },
+                    { icon: Zap, label: 'Alerts', color: 'text-warning', hoverColor: 'border-warning/50' },
+                    { icon: TrendingUp, label: 'Trends', color: 'text-success', hoverColor: 'border-success/50' }
+                  ].map((action, i) => (
+                    <motion.button 
+                      key={i}
+                      className="glass-transaction p-3 text-center transition-all duration-200"
+                      whileHover={{ 
+                        scale: 1.08,
+                        y: -2,
+                        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)"
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + i * 0.1 }}
+                    >
+                      <motion.div
+                        animate={{ rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
+                      >
+                        <action.icon className={`w-5 h-5 mx-auto mb-2 ${action.color}`} />
+                      </motion.div>
+                      <span className="text-xs font-medium">{action.label}</span>
+                    </motion.button>
+                  ))}
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
