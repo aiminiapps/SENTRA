@@ -347,7 +347,7 @@ Keep response under 200 words, use emojis, and focus on actionable intelligence.
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-fit py-14 flex items-center justify-center">
         <motion.div
           className="text-center"
           initial={{ opacity: 0 }}
