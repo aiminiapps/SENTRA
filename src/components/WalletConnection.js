@@ -315,7 +315,7 @@ const SentraWalletSystem = ({ onComplete }) => {
               {/* Connect Wallet Button */}
               <motion.button
                 onClick={handleConnect}
-                className="glass-button w-full flex items-center justify-center gap-4 relative overflow-hidden h-16 text-lg font-bold"
+                className="glass-button w-full sm:flex hidden items-center justify-center gap-4 relative overflow-hidden h-16 text-lg font-bold"
                 whileHover={{ 
                   scale: 1.02,
                   boxShadow: "0 20px 40px rgba(53, 198, 255, 0.3)"
@@ -358,12 +358,12 @@ const SentraWalletSystem = ({ onComplete }) => {
 
               {/* TON Connect */}
               <motion.div 
-                className="flex justify-center"
+                className="flex sm:hidden glass justify-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
               >
-                <TonConnectButton />
+                <TonConnectButton/>
               </motion.div>
 
               {/* Skip Button */}
