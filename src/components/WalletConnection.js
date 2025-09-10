@@ -705,11 +705,11 @@ const SentraWalletSystem = ({ onComplete }) => {
                       <span className="text-sm text-muted">Connection</span>
                       <div className="flex items-center gap-2">
                         <motion.div 
-                          className="w-2 h-2 bg-success rounded-full"
+                          className="w-2 h-2 bg-green-400 rounded-full"
                           animate={{ scale: [1, 1.5, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         />
-                        <span className="text-sm font-semibold text-success">
+                        <span className="text-sm font-semibold text-green-500">
                           {walletType} Active
                         </span>
                       </div>
@@ -724,7 +724,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                       >
                         <span className="text-sm text-muted">Address</span>
                         <motion.span 
-                          className="text-sm font-mono text-secondary px-2 py-1 bg-surface rounded"
+                          className="text-sm font-mono text-cyan-400 px-2 py-1 bg-surface rounded"
                           whileHover={{ scale: 1.05 }}
                         >
                           {formatAddress(address)}
@@ -740,7 +740,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                         transition={{ delay: 0.2 }}
                       >
                         <span className="text-sm text-muted">Balance</span>
-                        <span className="text-sm font-semibold text-primary">
+                        <span className="text-sm font-semibold text-green-400">
                           {formatBalance()} {balance.symbol}
                         </span>
                       </motion.div>
@@ -754,13 +754,10 @@ const SentraWalletSystem = ({ onComplete }) => {
                     >
                       <span className="text-sm text-muted">AI Status</span>
                       <div className="flex items-center gap-2">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                        >
-                          <Brain className="w-4 h-4 text-primary" />
+                        <motion.div>
+                          <Image src='/agent/agentlogo.png' alt='Logo' width={50} height={50} className="w-4 h-4 text-primary" />
                         </motion.div>
-                        <span className="text-sm font-semibold text-primary">Online</span>
+                        <span className="text-sm font-semibold text-green-500">Online</span>
                       </div>
                     </motion.div>
                   </motion.div>
