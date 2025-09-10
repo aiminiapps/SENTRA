@@ -159,45 +159,12 @@ const SentraWalletSystem = ({ onComplete }) => {
     return (
       <motion.div
         ref={containerRef}
-        className="min-h-screen glass-content py-10 flex items-center justify-center relative overflow-hidden"
+        className="min-h-screen flex items-center justify-center relative overflow-hidden"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
         transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        {/* Enhanced Animated Background */}
-        <motion.div
-          className="absolute inset-0"
-          style={{ 
-            x: parallaxX,
-            y: parallaxY
-          }}
-        >
-          {/* Floating orbs */}
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-32 h-32 rounded-full opacity-5"
-              style={{
-                background: `radial-gradient(circle, ${['#35C6FF', '#00F5FF', '#FFD166'][i % 3]} 0%, transparent 70%)`,
-                left: `${20 + (i * 15)}%`,
-                top: `${10 + (i * 12)}%`,
-              }}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.05, 0.15, 0.05],
-                rotate: [0, 180, 360]
-              }}
-              transition={{
-                duration: 8 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.5
-              }}
-            />
-          ))}
-        </motion.div>
-
         <div className="glass glass-p max-w-md w-full mx-4 relative z-10">
           <div className="glass-content text-center">
             {/* Enhanced Sentra Logo */}
@@ -225,7 +192,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                   >
-                    <Image src='/agent/agentlogo.png' alt='Logo' width={200} height={200}/>
+                    <Image src='/agent/agentlogo.png' alt='Logo' width={300} height={300}/>
                   </motion.div>
                 </div>
               
@@ -255,31 +222,9 @@ const SentraWalletSystem = ({ onComplete }) => {
                 />
               ))}
             </motion.div>
-
-            {/* Enhanced Title with Glitch Effect */}
-            <motion.h1 
-              className="terminal-header text-3xl mb-3 relative"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <span className="sentra-gradient-text relative z-10">
-                SENTRA INTELLIGENCE
-              </span>
-              <motion.span
-                className="absolute inset-0 sentra-gradient-text opacity-30"
-                animate={{
-                  x: [0, -2, 2, 0],
-                  opacity: [0.3, 0.7, 0.3]
-                }}
-                transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                SENTRA INTELLIGENCE
-              </motion.span>
-            </motion.h1>
             
             <motion.p 
-              className="text-secondary font-semibold mb-3 text-lg"
+              className="text-white/90 font-semibold mb-3 text-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -288,7 +233,7 @@ const SentraWalletSystem = ({ onComplete }) => {
             </motion.p>
             
             <motion.p 
-              className="text-muted mb-10 text-sm leading-relaxed"
+              className="text-white/80 text-balance mb-3 text-sm leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -298,7 +243,7 @@ const SentraWalletSystem = ({ onComplete }) => {
 
             {/* Enhanced Feature highlights */}
             <motion.div
-              className="grid grid-cols-3 gap-4 mb-10"
+              className="grid grid-cols-3 gap-4"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, staggerChildren: 0.1 }}
@@ -310,7 +255,7 @@ const SentraWalletSystem = ({ onComplete }) => {
               ].map((item, i) => (
                 <motion.div
                   key={i}
-                  className="glass-transaction text-center p-4 relative overflow-hidden"
+                  className="glass glass-p text-center relative overflow-hidden"
                   whileHover={{ 
                     scale: 1.05,
                     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)"
@@ -319,10 +264,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 + i * 0.1 }}
                 >
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
-                  >
+                  <motion.div>
                     <item.icon className={`w-6 h-6 ${item.color} mx-auto mb-2`} />
                   </motion.div>
                   <span className="text-sm font-medium">{item.label}</span>
@@ -339,7 +281,7 @@ const SentraWalletSystem = ({ onComplete }) => {
 
             {/* Enhanced Wallet Connection Highlight */}
             <motion.div
-              className="glass-alert p-6 mb-8 relative overflow-hidden"
+              className="glass p-6 mb-2 relative overflow-hidden"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
@@ -355,23 +297,11 @@ const SentraWalletSystem = ({ onComplete }) => {
               />
               
               <div className="flex items-start gap-4 relative z-10">
-                <motion.div
-                  animate={{ 
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ 
-                    rotate: { duration: 8, repeat: Infinity, ease: "linear" },
-                    scale: { duration: 2, repeat: Infinity }
-                  }}
-                >
-                  <Sparkles className="w-8 h-8 text-warning flex-shrink-0" />
-                </motion.div>
                 <div className="text-left">
-                  <p className="text-base font-bold text-primary mb-2">
+                  <p className="text-red-500/80 font-bold text-primary mb-1">
                     Unlock Full Potential
                   </p>
-                  <p className="text-sm text-muted leading-relaxed">
+                  <p className="text-sm text-gray-300 leading-relaxed">
                     Connect your wallet to access personalized AI agents and portfolio analysis
                   </p>
                 </div>
