@@ -617,7 +617,7 @@ const SentraWalletSystem = ({ onComplete }) => {
             }}
           >
             <motion.div 
-              className="glass w-64 border-2 shadow-2xl relative overflow-hidden backdrop-blur-lg" 
+              className="glass glass-p w-64 border-2 shadow-2xl relative overflow-hidden backdrop-blur-lg" 
               style={{ 
                 borderColor: getStatusColor(),
                 backgroundColor: 'rgba(11, 11, 12, 0.9)'
@@ -646,7 +646,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                 transition={{ duration: 4, repeat: Infinity }}
               />
               
-              <div className="p-6 relative z-10">
+              <div className="relative z-10">
                 {/* Enhanced Header */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
@@ -800,7 +800,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                   ].map((action, i) => (
                     <motion.button 
                       key={i}
-                      className="glass-transaction p-3 text-center transition-all duration-200"
+                      className=" p-3 text-center transition-all duration-200"
                       whileHover={{ 
                         scale: 1.08,
                         y: -2,
