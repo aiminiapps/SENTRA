@@ -24,6 +24,7 @@ import {
   Database,
   Orbit
 } from 'lucide-react';
+import Image from 'next/image';
 
 const SentraWalletSystem = ({ onComplete }) => {
   // Component States
@@ -158,7 +159,7 @@ const SentraWalletSystem = ({ onComplete }) => {
     return (
       <motion.div
         ref={containerRef}
-        className="min-h-screen glass-content flex items-center justify-center relative overflow-hidden"
+        className="min-h-screen glass-content py-10 flex items-center justify-center relative overflow-hidden"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
@@ -197,8 +198,8 @@ const SentraWalletSystem = ({ onComplete }) => {
           ))}
         </motion.div>
 
-        <div className="glass max-w-md w-full mx-4 relative z-10">
-          <div className="glass-content p-10 text-center">
+        <div className="glass glass-p max-w-md w-full mx-4 relative z-10">
+          <div className="glass-content text-center">
             {/* Enhanced Sentra Logo */}
             <motion.div
               className="relative w-32 h-32 mx-auto mb-8"
@@ -219,34 +220,14 @@ const SentraWalletSystem = ({ onComplete }) => {
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               />
               
-              {/* Middle ring */}
-              <motion.div
-                className="absolute inset-2 rounded-full border border-primary/20"
-                animate={{ rotate: -360 }}
-                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              />
-              
-              {/* Core */}
-              <motion.div
-                className="absolute inset-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 p-0.5"
-                animate={{ 
-                  boxShadow: [
-                    "0 0 20px rgba(53, 198, 255, 0.3)",
-                    "0 0 40px rgba(53, 198, 255, 0.6)",
-                    "0 0 20px rgba(53, 198, 255, 0.3)"
-                  ]
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
                 <div className="w-full h-full bg-background rounded-full flex items-center justify-center">
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                   >
-                    <Brain className="w-12 h-12 text-primary" />
+                    <Image src='/agent/agentlogo.png' alt='Logo' width={200} height={200}/>
                   </motion.div>
                 </div>
-              </motion.div>
               
               {/* Orbital dots */}
               {[...Array(3)].map((_, i) => (
