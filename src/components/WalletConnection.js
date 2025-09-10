@@ -794,9 +794,9 @@ const SentraWalletSystem = ({ onComplete }) => {
                   transition={{ delay: 0.4 }}
                 >
                   {[
-                    { icon: Eye, label: 'Scan', color: 'text-primary', hoverColor: 'border-primary/50' },
-                    { icon: Zap, label: 'Alerts', color: 'text-warning', hoverColor: 'border-warning/50' },
-                    { icon: TrendingUp, label: 'Trends', color: 'text-success', hoverColor: 'border-success/50' }
+                    { icon: Eye, label: 'Scan', color: 'text-blue-400', hoverColor: 'border-blue-400/50' },
+                    { icon: Zap, label: 'Alerts', color: 'text-red-400', hoverColor: 'border-warning/50' },
+                    { icon: TrendingUp, label: 'Trends', color: 'text-green-400', hoverColor: 'border-success/50' }
                   ].map((action, i) => (
                     <motion.button 
                       key={i}
@@ -817,7 +817,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                       >
                         <action.icon className={`w-5 h-5 mx-auto mb-2 ${action.color}`} />
                       </motion.div>
-                      <span className="text-xs font-medium">{action.label}</span>
+                      <span className={`text-xs font-medium ${action.color}`}>{action.label}</span>
                     </motion.button>
                   ))}
                 </motion.div>
