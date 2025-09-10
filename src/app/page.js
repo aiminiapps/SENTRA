@@ -1,4 +1,3 @@
- // src/app/page.js
 'use client';
 
 import { useEffect, useState, Suspense, useCallback } from 'react';
@@ -225,6 +224,7 @@ const DebugPanel = ({ user, error, webApp }) => {
 function TelegramMiniApp() {
   const [activeTab, setActiveTab] = useState('home');
   const [showLoader, setShowLoader] = useState(true);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false); // FIXED: Track completion
   const [showWalletOnboarding, setShowWalletOnboarding] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   
@@ -250,20 +250,26 @@ function TelegramMiniApp() {
   
   const router = useRouter();
 
-  // Show loader for 1.5 seconds, then show wallet onboarding
+  // Show loader for 1.5 seconds, then show wallet onboarding if not completed
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoader(false);
-      setShowWalletOnboarding(true);
+      if (!onboardingCompleted) { // FIXED: Only show if not completed
+        setShowWalletOnboarding(true);
+      }
     }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [onboardingCompleted]); // FIXED: Added dependency
 
-  // Handle wallet onboarding completion
+  // FIXED: Handle wallet onboarding completion - single callback
   const handleWalletOnboardingComplete = useCallback((walletConnected) => {
-    setShowWalletOnboarding(false);
-    setIsWalletConnected(walletConnected);
-  }, []);
+    console.log('Wallet onboarding completed:', walletConnected);
+    if (!onboardingCompleted) { // FIXED: Prevent multiple calls
+      setOnboardingCompleted(true); // FIXED: Mark as completed
+      setShowWalletOnboarding(false); // Hide the wallet component
+      setIsWalletConnected(walletConnected);
+    }
+  }, [onboardingCompleted]); // FIXED: Added dependency
 
   // Update store when user changes
   useEffect(() => {
@@ -308,13 +314,6 @@ function TelegramMiniApp() {
 
   const renderHomeContent = () => (
     <div className="space-y-6">
-      {/* <EarningTimer /> */}
-      {/* <SocialTask /> */}
-      {/* <NavigationButtons
-        setActiveTab={handleTabNavigation}
-        earningTimer={earningTimer}
-        startEarningTimer={startEarningTimer}
-      /> */}
       <CryptoNewsSentra/>
       <div className="flex justify-between items-center -mt-10">
         <h2 className="text-white text-xl font-bold">Market Intelligence</h2>
@@ -327,7 +326,6 @@ function TelegramMiniApp() {
       </div>
       <DataCenterHome />
       <QuantoraCommunityHub/>
-      {/* <UserBalance /> */}
       <div className="h-10" />
     </div>
   );
@@ -356,9 +354,14 @@ function TelegramMiniApp() {
     return <CustomLoader />;
   }
 
-  // Show wallet onboarding after loader
-  if (showWalletOnboarding) {
-    return <SentraWalletSystem onComplete={handleWalletOnboardingComplete} />;
+  // FIXED: Only show wallet onboarding if not completed
+  if (showWalletOnboarding && !onboardingCompleted) {
+    return (
+      <SentraWalletSystem 
+        key="wallet-onboarding" // FIXED: Unique key for proper unmounting
+        onComplete={handleWalletOnboardingComplete} 
+      />
+    );
   }
 
   // Show error state with retry options
@@ -402,11 +405,15 @@ function TelegramMiniApp() {
         <DebugPanel user={user} error={telegramError} webApp={webApp} />
         
         {/* Background decorations */}
-        {/* <div className="absolute size-52 bg-[#132427] rounded-full blur-3xl  -top-14 -left-14" /> */}
         <div className="absolute size-52 bg-[#132427] rounded-full blur-2xl -bottom-14 -right-14" />
         
-        {/* SentraWalletSystem Floating Ball - Only show if onboarding completed */}
-        {!showWalletOnboarding && <SentraWalletSystem />}
+        {/* FIXED: Only show floating ball if onboarding completed AND wallet connected */}
+        {onboardingCompleted && isWalletConnected && (
+          <SentraWalletSystem 
+            key="floating-wallet" // FIXED: Different key for floating mode
+            startInFloatingMode={true}
+          />
+        )}
         
         <div className="w-full">
           <TopNav />

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { useAccount, useBalance } from 'wagmi';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
@@ -27,16 +27,17 @@ import {
 import Image from 'next/image';
 import { RiSkipRightLine } from "react-icons/ri";
 
-
-const SentraWalletSystem = ({ onComplete }) => {
+const SentraWalletSystem = ({ onComplete, startInFloatingMode = false }) => {
   // Component States
-  const [phase, setPhase] = useState('onboarding'); // 'onboarding' | 'floating'
+  const [phase, setPhase] = useState(startInFloatingMode ? 'floating' : 'onboarding');
+  const [visible, setVisible] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [connectionPulse, setConnectionPulse] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
   
   // Wallet Hooks
   const { address, isConnected } = useAccount();
@@ -89,8 +90,26 @@ const SentraWalletSystem = ({ onComplete }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // FIXED: Complete onboarding process
+  const completeOnboarding = useCallback((walletConnected) => {
+    if (hasCompleted) return; // Prevent multiple calls
+    
+    setHasCompleted(true);
+    setIsTransitioning(true);
+    
+    // Only trigger completion for onboarding phase
+    if (phase === 'onboarding') {
+      // Start exit animation, then complete
+      setTimeout(() => {
+        setVisible(false);
+        onComplete?.(walletConnected);
+      }, 1200); // Allow exit animation to complete
+    }
+  }, [hasCompleted, phase, onComplete]);
+
   // Handle wallet connection or skip
   const handleConnect = async () => {
+    if (hasCompleted) return;
     try {
       await open();
     } catch (error) {
@@ -99,29 +118,16 @@ const SentraWalletSystem = ({ onComplete }) => {
   };
 
   const handleSkip = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setPhase('floating');
-      setIsTransitioning(false);
-      onComplete?.(false);
-    }, 500);
-  };
-
-  const handleWalletConnected = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setPhase('floating');
-      setIsTransitioning(false);
-      onComplete?.(true);
-    }, 2000);
+    if (hasCompleted) return;
+    completeOnboarding(false);
   };
 
   // Auto-transition when wallet connects
   useEffect(() => {
-    if (isWalletConnected && phase === 'onboarding' && !isTransitioning) {
-      handleWalletConnected();
+    if (isWalletConnected && phase === 'onboarding' && !hasCompleted) {
+      completeOnboarding(true);
     }
-  }, [isWalletConnected, phase, isTransitioning]);
+  }, [isWalletConnected, phase, hasCompleted, completeOnboarding]);
 
   // Auto-collapse expanded state
   useEffect(() => {
@@ -163,12 +169,305 @@ const SentraWalletSystem = ({ onComplete }) => {
   const parallaxX = useTransform(() => (mousePosition.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 400)) * 0.02);
   const parallaxY = useTransform(() => (mousePosition.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 400)) * 0.02);
 
-  // ONBOARDING PHASE
-  if (phase === 'onboarding') {
+  // FIXED: Don't render if not visible
+  if (!visible) {
+    return null;
+  }
+
+  // If starting in floating mode, render floating component
+  if (startInFloatingMode || phase === 'floating') {
     return (
+      <AnimatePresence key="floating-mode">
+        <motion.div
+          ref={ballRef}
+          drag
+          dragConstraints={dragConstraints}
+          dragElastic={0.15}
+          onDragStart={() => {
+            setIsDragging(true);
+            setIsExpanded(false);
+          }}
+          onDragEnd={(event, info) => {
+            setIsDragging(false);
+            const newX = position.x + info.offset.x;
+            const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 800;
+            
+            if (newX < windowWidth / 3) {
+              setPosition(prev => ({ ...prev, x: 20 }));
+            } else if (newX > (windowWidth * 2) / 3) {
+              setPosition(prev => ({ ...prev, x: windowWidth - 84 }));
+            }
+          }}
+          onTap={() => !isDragging && setIsExpanded(!isExpanded)}
+          className="fixed z-50 cursor-grab active:cursor-grabbing select-none"
+          style={{
+            left: position.x,
+            top: position.y,
+            width: 72,
+            height: 72
+          }}
+          key="floating-ball"
+          initial={{ scale: 0, opacity: 0, rotate: 180 }}
+          animate={{ 
+            scale: isDragging ? 1.15 : 1,
+            opacity: 1,
+            rotate: isDragging ? 15 : 0
+          }}
+          exit={{ scale: 0, opacity: 0, rotate: -180 }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 400, 
+            damping: 25,
+            scale: { duration: 0.2 },
+            rotate: { duration: 0.3 }
+          }}
+          whileHover={{ 
+            scale: 1.08,
+            transition: { duration: 0.2 }
+          }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {/* Enhanced Ball Container */}
+          <motion.div
+            className="w-18 h-18 rounded-full relative backdrop-blur-xl"
+            style={{ 
+              background: `conic-gradient(from ${connectionPulse * 3.6}deg, ${getStatusColor()}40, ${getStatusColor()}80, ${getStatusColor()}40)`,
+              borderColor: getStatusColor()
+            }}
+            animate={{
+              boxShadow: [
+                `0 0 25px ${getStatusColor()}50`,
+                `0 0 45px ${getStatusColor()}80`,
+                `0 0 25px ${getStatusColor()}50`
+              ]
+            }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+          >
+            {/* Outer rotating ring */}
+            <motion.div
+              className="absolute inset-1 rounded-full scale-110 border border-cyan-400/30"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            />
+            
+            {/* Inner content area */}
+            <motion.div 
+              className="absolute inset-3 rounded-full bg-background/95 flex items-center justify-center"
+              animate={{
+                background: isDragging ? 
+                  `radial-gradient(circle, ${getStatusColor()}20, rgba(11, 11, 12, 0.95))` :
+                  'rgba(11, 11, 12, 0.95)'
+              }}
+            >
+              <motion.div
+                animate={{ 
+                  rotate: balanceLoading ? 360 : 0,
+                  scale: isExpanded ? [1, 1.2, 1] : [1, 1.05, 1]
+                }}
+                transition={{ 
+                  rotate: { duration: 2, repeat: balanceLoading ? Infinity : 0, ease: "linear" },
+                  scale: { duration: 3, repeat: Infinity }
+                }}
+              >
+                {isWalletConnected ? (
+                  <Wallet className="w-7 h-7" style={{ color: getStatusColor() }} />
+                ) : (
+                  <WalletCards className="w-7 h-7" style={{ color: getStatusColor() }} />
+                )}
+              </motion.div>
+            </motion.div>
+
+            {/* Enhanced Status Indicators */}
+            <motion.div
+              className="absolute top-1 right-1 w-4 h-4 rounded-full border-2 border-background"
+              style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
+              animate={{
+                scale: [1, 1.4, 1],
+                opacity: [0.8, 1, 0.8]
+              }}
+              transition={{ duration: 1.8, repeat: Infinity }}
+            />
+            
+            {/* Data flow indicators */}
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 rounded-full bg-primary/60"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  marginLeft: '-2px',
+                  marginTop: '-2px',
+                }}
+                animate={{
+                  x: [0, 20 * Math.cos(i * 120 * Math.PI / 180), 0],
+                  y: [0, 20 * Math.sin(i * 120 * Math.PI / 180), 0],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: i * 0.3,
+                  ease: "easeInOut"
+                }}
+              />
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* Enhanced Expanded Info Panel */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              className="fixed z-[60]"
+              style={{
+                left: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? position.x - 240 : position.x + 90,
+                top: Math.max(10, position.y - 60)
+              }}
+              initial={{ 
+                opacity: 0, 
+                scale: 0.8, 
+                x: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? 40 : -40,
+                y: 30
+              }}
+              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+              exit={{ 
+                opacity: 0, 
+                scale: 0.8, 
+                x: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? 40 : -40,
+                y: 30
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 500, 
+                damping: 30,
+                opacity: { duration: 0.2 }
+              }}
+            >
+              <motion.div 
+                className="glass glass-p w-64 border-2 shadow-2xl relative overflow-hidden backdrop-blur-lg" 
+                style={{ 
+                  borderColor: getStatusColor(),
+                  backgroundColor: 'rgba(11, 11, 12, 0.9)'
+                }}
+              >
+                <div className="relative z-10">
+                  {/* Enhanced Header */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <motion.div 
+                        className="size-2 rounded-full relative" 
+                        style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
+                        animate={{ scale: [1, 1.3, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      <span className="text-sm font-bold text-primary">SENTRA STATUS</span>
+                    </div>
+                    <motion.button
+                      onClick={() => setIsExpanded(false)}
+                      className="w-7 h-7 rounded-full bg-surface flex items-center justify-center hover:bg-elevated transition-colors"
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <X className="w-4 h-4 text-muted" />
+                    </motion.button>
+                  </div>
+
+                  {/* Enhanced Wallet Info */}
+                  {isWalletConnected ? (
+                    <motion.div className="space-y-4">
+                      <motion.div className="flex items-center justify-between py-3 border-b border-border-secondary">
+                        <span className="text-sm text-muted">Connection</span>
+                        <div className="flex items-center gap-2">
+                          <motion.div 
+                            className="w-2 h-2 bg-green-400 rounded-full"
+                            animate={{ scale: [1, 1.5, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          />
+                          <span className="text-sm font-semibold text-green-500">
+                            {walletType} Active
+                          </span>
+                        </div>
+                      </motion.div>
+                      
+                      {address && (
+                        <motion.div className="flex items-center justify-between">
+                          <span className="text-sm text-muted">Address</span>
+                          <motion.span 
+                            className="text-sm font-mono text-cyan-400 px-2 py-1 bg-surface rounded"
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            {formatAddress(address)}
+                          </motion.span>
+                        </motion.div>
+                      )}
+                      
+                      {balance && (
+                        <motion.div className="flex items-center justify-between">
+                          <span className="text-sm text-muted">Balance</span>
+                          <span className="text-sm font-semibold text-green-400">
+                            {formatBalance()} {balance.symbol}
+                          </span>
+                        </motion.div>
+                      )}
+
+                      <motion.div className="flex items-center justify-between">
+                        <span className="text-sm text-muted">AI Status</span>
+                        <div className="flex items-center gap-2">
+                          <Image src='/agent/agentlogo.png' alt='Logo' width={16} height={16} className="w-4 h-4" />
+                          <span className="text-sm font-semibold text-green-500">Online</span>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  ) : (
+                    <motion.div className="text-center py-6">
+                      <WalletCards className="w-12 h-12 text-muted mx-auto mb-4" />
+                      <p className="text-sm text-white/80 mb-2">No Wallet Connected</p>
+                      <p className="text-sm text-red-500 font-semibold">Basic Features Only</p>
+                    </motion.div>
+                  )}
+
+                  {/* Enhanced Quick Actions */}
+                  <motion.div className="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-white/50">
+                    {[
+                      { icon: Eye, label: 'Scan', color: 'text-blue-400' },
+                      { icon: Zap, label: 'Alerts', color: 'text-red-400' },
+                      { icon: TrendingUp, label: 'Trends', color: 'text-green-400' }
+                    ].map((action, i) => (
+                      <motion.button 
+                        key={i}
+                        className="p-3 text-center transition-all duration-200"
+                        whileHover={{ scale: 1.08, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <action.icon className={`w-5 h-5 mx-auto mb-2 ${action.color}`} />
+                        <span className={`text-xs font-medium ${action.color}`}>{action.label}</span>
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </AnimatePresence>
+    );
+  }
+
+  // ONBOARDING PHASE
+  return (
+    <AnimatePresence 
+      key="onboarding-mode"
+      onExitComplete={() => {
+        if (hasCompleted) {
+          setVisible(false);
+        }
+      }}
+    >
       <motion.div
         ref={containerRef}
         className="min-h-screen glass-content flex items-center justify-center relative overflow-hidden"
+        key="onboarding-phase"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
@@ -196,14 +495,14 @@ const SentraWalletSystem = ({ onComplete }) => {
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               />
               
-                <div className="w-full h-full bg-background rounded-full flex items-center justify-center">
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Image src='/agent/agentlogo.png' alt='Logo' width={300} height={300}/>
-                  </motion.div>
-                </div>
+              <div className="w-full h-full bg-background rounded-full flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <Image src='/agent/agentlogo.png' alt='Logo' width={300} height={300}/>
+                </motion.div>
+              </div>
               
               {/* Orbital dots */}
               {[...Array(3)].map((_, i) => (
@@ -277,13 +576,6 @@ const SentraWalletSystem = ({ onComplete }) => {
                     <item.icon className={`w-6 h-6 ${item.color} mx-auto mb-2`} />
                   </motion.div>
                   <span className="text-sm font-medium">{item.label}</span>
-                  
-                  {/* Hover glow effect */}
-                  <motion.div
-                    className="absolute inset-0 rounded-lg opacity-0"
-                    style={{ background: `linear-gradient(45deg, ${item.color.includes('primary') ? '#35C6FF' : item.color.includes('warning') ? '#FFD166' : '#10B981'}20, transparent)` }}
-                    whileHover={{ opacity: 1 }}
-                  />
                 </motion.div>
               ))}
             </motion.div>
@@ -296,15 +588,6 @@ const SentraWalletSystem = ({ onComplete }) => {
               transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
               whileHover={{ scale: 1.02 }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-warning/5 to-primary/5"
-                animate={{ 
-                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                  opacity: [0.3, 0.6, 0.3]
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-              />
-              
               <div className="flex items-start gap-4 relative z-10">
                 <div className="text-left">
                   <p className="text-red-500/80 font-bold text-primary mb-1">
@@ -328,18 +611,11 @@ const SentraWalletSystem = ({ onComplete }) => {
                   boxShadow: "0 20px 40px rgba(53, 198, 255, 0.3)"
                 }}
                 whileTap={{ scale: 0.98 }}
-                disabled={isWalletConnected}
+                disabled={isWalletConnected || hasCompleted}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
               >
-                {/* Animated background sweep */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
-                  animate={{ x: ['-200%', '200%'] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                />
-                
                 <motion.div
                   animate={isWalletConnected ? { scale: [1, 1.2, 1] } : {}}
                   transition={{ duration: 0.5, repeat: isWalletConnected ? 3 : 0 }}
@@ -385,6 +661,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.0 }}
+                disabled={hasCompleted}
               >
                 Continue Without Wallet <RiSkipRightLine size={30} className='text-gray-400'/>
               </motion.button>
@@ -400,14 +677,6 @@ const SentraWalletSystem = ({ onComplete }) => {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-success/10 to-primary/10"
-                    animate={{ 
-                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  
                   <div className="flex items-center gap-3 text-success mb-3 relative z-10">
                     <motion.div
                       animate={{ 
@@ -444,386 +713,7 @@ const SentraWalletSystem = ({ onComplete }) => {
           </div>
         </div>
       </motion.div>
-    );
-  }
-
-  // ENHANCED FLOATING PHASE
-  return (
-    <>
-      {/* Main Enhanced Draggable Ball */}
-      <motion.div
-        ref={ballRef}
-        drag
-        dragConstraints={dragConstraints}
-        dragElastic={0.15}
-        onDragStart={() => {
-          setIsDragging(true);
-          setIsExpanded(false);
-        }}
-        onDragEnd={(event, info) => {
-          setIsDragging(false);
-          
-          // Smart edge snapping
-          const newX = position.x + info.offset.x;
-          const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 800;
-          
-          if (newX < windowWidth / 3) {
-            setPosition(prev => ({ ...prev, x: 20 }));
-          } else if (newX > (windowWidth * 2) / 3) {
-            setPosition(prev => ({ ...prev, x: windowWidth - 84 }));
-          }
-        }}
-        onTap={() => !isDragging && setIsExpanded(!isExpanded)}
-        className="fixed z-50 cursor-grab active:cursor-grabbing select-none"
-        style={{
-          left: position.x,
-          top: position.y,
-          width: 72,
-          height: 72
-        }}
-        initial={{ scale: 0, opacity: 0, rotate: 180 }}
-        animate={{ 
-          scale: isDragging ? 1.15 : 1,
-          opacity: 1,
-          rotate: isDragging ? 15 : 0
-        }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 25,
-          scale: { duration: 0.2 },
-          rotate: { duration: 0.3 }
-        }}
-        whileHover={{ 
-          scale: 1.08,
-          transition: { duration: 0.2 }
-        }}
-        whileTap={{ scale: 0.95 }}
-      >
-        {/* Enhanced Ball Container */}
-        <motion.div
-          className="w-18 h-18 rounded-full relative backdrop-blur-xl "
-          style={{ 
-            background: `conic-gradient(from ${connectionPulse * 3.6}deg, ${getStatusColor()}40, ${getStatusColor()}80, ${getStatusColor()}40)`,
-            borderColor: getStatusColor()
-          }}
-          animate={{
-            boxShadow: [
-              `0 0 25px ${getStatusColor()}50`,
-              `0 0 45px ${getStatusColor()}80`,
-              `0 0 25px ${getStatusColor()}50`
-            ]
-          }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-        >
-          {/* Outer rotating ring */}
-          <motion.div
-            className="absolute inset-1 rounded-full scale-110 border border-cyan-400/30"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          />
-          
-          {/* Inner content area */}
-          <motion.div 
-            className="absolute inset-3 rounded-full bg-background/95 flex items-center justify-center"
-            animate={{
-              background: isDragging ? 
-                `radial-gradient(circle, ${getStatusColor()}20, rgba(11, 11, 12, 0.95))` :
-                'rgba(11, 11, 12, 0.95)'
-            }}
-          >
-            <motion.div
-              animate={{ 
-                rotate: balanceLoading ? 360 : 0,
-                scale: isExpanded ? [1, 1.2, 1] : [1, 1.05, 1]
-              }}
-              transition={{ 
-                rotate: { duration: 2, repeat: balanceLoading ? Infinity : 0, ease: "linear" },
-                scale: { duration: 3, repeat: Infinity }
-              }}
-            >
-              {isWalletConnected ? (
-                <Wallet className="w-7 h-7" style={{ color: getStatusColor() }} />
-              ) : (
-                <WalletCards className="w-7 h-7" style={{ color: getStatusColor() }} />
-              )}
-            </motion.div>
-          </motion.div>
-
-          {/* Enhanced Status Indicators */}
-          <motion.div
-            className="absolute top-1 right-1 w-4 h-4 rounded-full border-2 border-background"
-            style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
-            animate={{
-              scale: [1, 1.4, 1],
-              opacity: [0.8, 1, 0.8]
-            }}
-            transition={{ duration: 1.8, repeat: Infinity }}
-          />
-          {/* Data flow indicators */}
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-primary/60"
-              style={{
-                left: '50%',
-                top: '50%',
-                marginLeft: '-2px',
-                marginTop: '-2px',
-              }}
-              animate={{
-                x: [0, 20 * Math.cos(i * 120 * Math.PI / 180), 0],
-                y: [0, 20 * Math.sin(i * 120 * Math.PI / 180), 0],
-                opacity: [0, 1, 0]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: i * 0.3,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Enhanced Expanded Info Panel */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            className="fixed z-[60]"
-            style={{
-              left: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? position.x - 240 : position.x + 90,
-              top: Math.max(10, position.y - 60)
-            }}
-            initial={{ 
-              opacity: 0, 
-              scale: 0.8, 
-              x: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? 40 : -40,
-              y: 30
-            }}
-            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.8, 
-              x: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? 40 : -40,
-              y: 30
-            }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 500, 
-              damping: 30,
-              opacity: { duration: 0.2 }
-            }}
-          >
-            <motion.div 
-              className="glass glass-p w-64 border-2 shadow-2xl relative overflow-hidden backdrop-blur-lg" 
-              style={{ 
-                borderColor: getStatusColor(),
-                backgroundColor: 'rgba(11, 11, 12, 0.9)'
-              }}
-              animate={{
-                boxShadow: [
-                  `0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px ${getStatusColor()}30`,
-                  `0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px ${getStatusColor()}50`,
-                  `0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px ${getStatusColor()}30`
-                ]
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              {/* Animated background */}
-              <motion.div
-                className="absolute inset-0 opacity-5"
-                animate={{
-                  background: [
-                    `linear-gradient(45deg, ${getStatusColor()}30, transparent)`,
-                    `linear-gradient(135deg, ${getStatusColor()}30, transparent)`,
-                    `linear-gradient(225deg, ${getStatusColor()}30, transparent)`,
-                    `linear-gradient(315deg, ${getStatusColor()}30, transparent)`,
-                    `linear-gradient(45deg, ${getStatusColor()}30, transparent)`
-                  ]
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-              />
-              
-              <div className="relative z-10">
-                {/* Enhanced Header */}
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <motion.div 
-                      className="size-2 rounded-full relative" 
-                      style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
-                      animate={{ 
-                        scale: [1, 1.3, 1],
-                        boxShadow: [
-                          `0 0 5px ${isWalletConnected ? '#00FF88' : '#FF4444'}`,
-                          `0 0 15px ${isWalletConnected ? '#00FF88' : '#FF4444'}`,
-                          `0 0 5px ${isWalletConnected ? '#00FF88' : '#FF4444'}`
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      {/* Pulse ring */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full border-2"
-                        style={{ borderColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
-                        animate={{ 
-                          scale: [1, 2, 1],
-                          opacity: [0.5, 0, 0.5]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                    </motion.div>
-                    <span className="text-sm font-bold text-primary">SENTRA STATUS</span>
-                  </div>
-                  <motion.button
-                    onClick={() => setIsExpanded(false)}
-                    className="w-7 h-7 rounded-full bg-surface flex items-center justify-center hover:bg-elevated transition-colors"
-                    whileHover={{ 
-                      scale: 1.15,
-                      backgroundColor: "rgba(239, 68, 68, 0.2)"
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <X className="w-4 h-4 text-muted" />
-                  </motion.button>
-                </div>
-
-                {/* Enhanced Wallet Info */}
-                {isWalletConnected ? (
-                  <motion.div
-                    className="space-y-4"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ staggerChildren: 0.1 }}
-                  >
-                    <motion.div 
-                      className="flex items-center justify-between py-3 border-b border-border-secondary"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                    >
-                      <span className="text-sm text-muted">Connection</span>
-                      <div className="flex items-center gap-2">
-                        <motion.div 
-                          className="w-2 h-2 bg-green-400 rounded-full"
-                          animate={{ scale: [1, 1.5, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        />
-                        <span className="text-sm font-semibold text-green-500">
-                          {walletType} Active
-                        </span>
-                      </div>
-                    </motion.div>
-                    
-                    {address && (
-                      <motion.div 
-                        className="flex items-center justify-between"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        <span className="text-sm text-muted">Address</span>
-                        <motion.span 
-                          className="text-sm font-mono text-cyan-400 px-2 py-1 bg-surface rounded"
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          {formatAddress(address)}
-                        </motion.span>
-                      </motion.div>
-                    )}
-                    
-                    {balance && (
-                      <motion.div 
-                        className="flex items-center justify-between"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <span className="text-sm text-muted">Balance</span>
-                        <span className="text-sm font-semibold text-green-400">
-                          {formatBalance()} {balance.symbol}
-                        </span>
-                      </motion.div>
-                    )}
-
-                    <motion.div 
-                      className="flex items-center justify-between"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <span className="text-sm text-muted">AI Status</span>
-                      <div className="flex items-center gap-2">
-                        <motion.div>
-                          <Image src='/agent/agentlogo.png' alt='Logo' width={50} height={50} className="w-4 h-4 text-primary" />
-                        </motion.div>
-                        <span className="text-sm font-semibold text-green-500">Online</span>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    className="text-center py-6"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                  >
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 10, -10, 0]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
-                      <WalletCards className="w-12 h-12 text-muted mx-auto mb-4" />
-                    </motion.div>
-                    <p className="text-sm text-white/80 mb-2">No Wallet Connected</p>
-                    <p className="text-sm text-red-500 font-semibold">
-                      Basic Features Only
-                    </p>
-                  </motion.div>
-                )}
-
-                {/* Enhanced Quick Actions */}
-                <motion.div 
-                  className="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-white/50"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  {[
-                    { icon: Eye, label: 'Scan', color: 'text-blue-400', hoverColor: 'border-blue-400/50' },
-                    { icon: Zap, label: 'Alerts', color: 'text-red-400', hoverColor: 'border-warning/50' },
-                    { icon: TrendingUp, label: 'Trends', color: 'text-green-400', hoverColor: 'border-success/50' }
-                  ].map((action, i) => (
-                    <motion.button 
-                      key={i}
-                      className=" p-3 text-center transition-all duration-200"
-                      whileHover={{ 
-                        scale: 1.08,
-                        y: -2,
-                        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)"
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 + i * 0.1 }}
-                    >
-                      <motion.div
-                        animate={{ rotate: [0, 5, -5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
-                      >
-                        <action.icon className={`w-5 h-5 mx-auto mb-2 ${action.color}`} />
-                      </motion.div>
-                      <span className={`text-xs font-medium ${action.color}`}>{action.label}</span>
-                    </motion.button>
-                  ))}
-                </motion.div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    </AnimatePresence>
   );
 };
 
