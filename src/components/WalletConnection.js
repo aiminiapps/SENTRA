@@ -502,7 +502,7 @@ const SentraWalletSystem = ({ onComplete }) => {
       >
         {/* Enhanced Ball Container */}
         <motion.div
-          className="w-18 h-18 rounded-full relative overflow-hidden backdrop-blur-xl border-2"
+          className="w-18 h-18 rounded-full relative backdrop-blur-xl "
           style={{ 
             background: `conic-gradient(from ${connectionPulse * 3.6}deg, ${getStatusColor()}40, ${getStatusColor()}80, ${getStatusColor()}40)`,
             borderColor: getStatusColor()
@@ -518,7 +518,7 @@ const SentraWalletSystem = ({ onComplete }) => {
         >
           {/* Outer rotating ring */}
           <motion.div
-            className="absolute inset-1 rounded-full border border-primary/30"
+            className="absolute inset-1 rounded-full scale-110 border border-cyan-400/30"
             animate={{ rotate: 360 }}
             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           />
@@ -560,22 +560,6 @@ const SentraWalletSystem = ({ onComplete }) => {
             }}
             transition={{ duration: 1.8, repeat: Infinity }}
           />
-
-          {/* Activity pulse */}
-          {isWalletConnected && (
-            <motion.div
-              className="absolute bottom-1 left-1 w-4 h-4 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: `${getStatusColor()}40` }}
-              animate={{ 
-                scale: [0.8, 1.3, 0.8],
-                opacity: [0.5, 1, 0.5]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Activity className="w-2 h-2" style={{ color: getStatusColor() }} />
-            </motion.div>
-          )}
-
           {/* Data flow indicators */}
           {[...Array(3)].map((_, i) => (
             <motion.div
