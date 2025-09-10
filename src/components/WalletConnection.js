@@ -651,7 +651,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
                     <motion.div 
-                      className="w-4 h-4 rounded-full relative" 
+                      className="size-2 rounded-full relative" 
                       style={{ backgroundColor: isWalletConnected ? '#00FF88' : '#FF4444' }}
                       animate={{ 
                         scale: [1, 1.3, 1],
@@ -779,8 +779,8 @@ const SentraWalletSystem = ({ onComplete }) => {
                     >
                       <WalletCards className="w-12 h-12 text-muted mx-auto mb-4" />
                     </motion.div>
-                    <p className="text-sm text-muted mb-2">No Wallet Connected</p>
-                    <p className="text-sm text-warning font-semibold">
+                    <p className="text-sm text-white/80 mb-2">No Wallet Connected</p>
+                    <p className="text-sm text-red-500 font-semibold">
                       Basic Features Only
                     </p>
                   </motion.div>
@@ -788,7 +788,7 @@ const SentraWalletSystem = ({ onComplete }) => {
 
                 {/* Enhanced Quick Actions */}
                 <motion.div 
-                  className="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-border-secondary"
+                  className="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-white/50"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
