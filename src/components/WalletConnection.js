@@ -36,6 +36,7 @@ const SentraWalletSystem = ({ onComplete }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [connectionPulse, setConnectionPulse] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Wallet Hooks
   const { address, isConnected } = useAccount();
@@ -98,23 +99,29 @@ const SentraWalletSystem = ({ onComplete }) => {
   };
 
   const handleSkip = () => {
-    setPhase('floating');
-    onComplete?.(false);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setPhase('floating');
+      setIsTransitioning(false);
+      onComplete?.(false);
+    }, 500);
   };
 
   const handleWalletConnected = () => {
+    setIsTransitioning(true);
     setTimeout(() => {
       setPhase('floating');
+      setIsTransitioning(false);
       onComplete?.(true);
     }, 2000);
   };
 
   // Auto-transition when wallet connects
   useEffect(() => {
-    if (isWalletConnected && phase === 'onboarding') {
+    if (isWalletConnected && phase === 'onboarding' && !isTransitioning) {
       handleWalletConnected();
     }
-  }, [isWalletConnected, phase]);
+  }, [isWalletConnected, phase, isTransitioning]);
 
   // Auto-collapse expanded state
   useEffect(() => {
@@ -128,9 +135,9 @@ const SentraWalletSystem = ({ onComplete }) => {
   // Drag constraints for floating ball
   const dragConstraints = {
     left: 10,
-    right: typeof window !== 'undefined' ? window.innerWidth - 74 : 0,
+    right: typeof window !== 'undefined' ? window.innerWidth - 74 : 800,
     top: 10,
-    bottom: typeof window !== 'undefined' ? window.innerHeight - 74 : 0
+    bottom: typeof window !== 'undefined' ? window.innerHeight - 74 : 600
   };
 
   const getStatusColor = () => {
@@ -153,15 +160,15 @@ const SentraWalletSystem = ({ onComplete }) => {
   };
 
   // Parallax transform
-  const parallaxX = useTransform(() => (mousePosition.x - window.innerWidth / 2) * 0.02);
-  const parallaxY = useTransform(() => (mousePosition.y - window.innerHeight / 2) * 0.02);
+  const parallaxX = useTransform(() => (mousePosition.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 400)) * 0.02);
+  const parallaxY = useTransform(() => (mousePosition.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 400)) * 0.02);
 
   // ONBOARDING PHASE
   if (phase === 'onboarding') {
     return (
       <motion.div
         ref={containerRef}
-        className="min-h-screen flex items-center justify-center relative overflow-hidden"
+        className="min-h-screen glass-content flex items-center justify-center relative overflow-hidden"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
@@ -458,7 +465,7 @@ const SentraWalletSystem = ({ onComplete }) => {
           
           // Smart edge snapping
           const newX = position.x + info.offset.x;
-          const windowWidth = window.innerWidth;
+          const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 800;
           
           if (newX < windowWidth / 3) {
             setPosition(prev => ({ ...prev, x: 20 }));
@@ -469,8 +476,8 @@ const SentraWalletSystem = ({ onComplete }) => {
         onTap={() => !isDragging && setIsExpanded(!isExpanded)}
         className="fixed z-50 cursor-grab active:cursor-grabbing select-none"
         style={{
-          x: position.x,
-          y: position.y,
+          left: position.x,
+          top: position.y,
           width: 72,
           height: 72
         }}
@@ -600,22 +607,22 @@ const SentraWalletSystem = ({ onComplete }) => {
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            className="fixed z-40"
+            className="fixed z-[60]"
             style={{
-              x: position.x > window.innerWidth / 2 ? position.x - 240 : position.x + 90,
-              y: Math.max(10, position.y - 60)
+              left: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? position.x - 240 : position.x + 90,
+              top: Math.max(10, position.y - 60)
             }}
             initial={{ 
               opacity: 0, 
               scale: 0.8, 
-              x: position.x > window.innerWidth / 2 ? 40 : -40,
+              x: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? 40 : -40,
               y: 30
             }}
             animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
             exit={{ 
               opacity: 0, 
               scale: 0.8, 
-              x: position.x > window.innerWidth / 2 ? 40 : -40,
+              x: position.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400) ? 40 : -40,
               y: 30
             }}
             transition={{ 
@@ -626,8 +633,11 @@ const SentraWalletSystem = ({ onComplete }) => {
             }}
           >
             <motion.div 
-              className="glass w-64 border-2 shadow-2xl relative overflow-hidden" 
-              style={{ borderColor: getStatusColor() }}
+              className="glass w-64 border-2 shadow-2xl relative overflow-hidden backdrop-blur-lg" 
+              style={{ 
+                borderColor: getStatusColor(),
+                backgroundColor: 'rgba(11, 11, 12, 0.9)'
+              }}
               animate={{
                 boxShadow: [
                   `0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px ${getStatusColor()}30`,
@@ -652,7 +662,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                 transition={{ duration: 4, repeat: Infinity }}
               />
               
-              <div className="glass-content p-6 relative z-10">
+              <div className="p-6 relative z-10">
                 {/* Enhanced Header */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
