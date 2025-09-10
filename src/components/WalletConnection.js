@@ -671,20 +671,14 @@ const SentraWalletSystem = ({ onComplete, startInFloatingMode = false }) => {
             <AnimatePresence>
               {isWalletConnected && (
                 <motion.div
-                  className="glass-transaction p-6 mt-8 relative overflow-hidden"
+                  className="glass glass-p mt-2 relative overflow-hidden"
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center gap-3 text-success mb-3 relative z-10">
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.3, 1],
-                        rotate: [0, 360, 0]
-                      }}
-                      transition={{ duration: 1, repeat: 3 }}
-                    >
+                    <motion.div>
                       <Shield className="w-6 h-6" />
                     </motion.div>
                     <span className="font-bold text-lg">Connection Successful!</span>
