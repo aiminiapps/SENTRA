@@ -1,4 +1,4 @@
-// src/app/page.js
+ // src/app/page.js
 'use client';
 
 import { useEffect, useState, Suspense, useCallback } from 'react';
@@ -20,6 +20,7 @@ import SearchAgent from '@/components/ui/SearchAgent';
 import { SquareCheckBig, UserPlus, History, Check, CheckCircle } from 'lucide-react';
 import QuantoraCommunityHub from '@/components/CommunityHub';
 import CryptoNewsSentra from '@/components/CryptoAgentCenter';
+import SentraWalletSystem from '@/components/WalletConnection';
 
 // Earning Timer Component
 const EarningTimer = () => {
@@ -224,6 +225,8 @@ const DebugPanel = ({ user, error, webApp }) => {
 function TelegramMiniApp() {
   const [activeTab, setActiveTab] = useState('home');
   const [showLoader, setShowLoader] = useState(true);
+  const [showWalletOnboarding, setShowWalletOnboarding] = useState(false);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
   
   // Use the custom Telegram hook
   const { 
@@ -247,12 +250,19 @@ function TelegramMiniApp() {
   
   const router = useRouter();
 
-  // Show loader for 1.5 seconds
+  // Show loader for 1.5 seconds, then show wallet onboarding
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoader(false);
+      setShowWalletOnboarding(true);
     }, 1500);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Handle wallet onboarding completion
+  const handleWalletOnboardingComplete = useCallback((walletConnected) => {
+    setShowWalletOnboarding(false);
+    setIsWalletConnected(walletConnected);
   }, []);
 
   // Update store when user changes
@@ -346,6 +356,11 @@ function TelegramMiniApp() {
     return <CustomLoader />;
   }
 
+  // Show wallet onboarding after loader
+  if (showWalletOnboarding) {
+    return <SentraWalletSystem onComplete={handleWalletOnboardingComplete} />;
+  }
+
   // Show error state with retry options
   if (telegramError && !user) {
     return (
@@ -389,6 +404,9 @@ function TelegramMiniApp() {
         {/* Background decorations */}
         {/* <div className="absolute size-52 bg-[#132427] rounded-full blur-3xl  -top-14 -left-14" /> */}
         <div className="absolute size-52 bg-[#132427] rounded-full blur-2xl -bottom-14 -right-14" />
+        
+        {/* SentraWalletSystem Floating Ball - Only show if onboarding completed */}
+        {!showWalletOnboarding && <SentraWalletSystem />}
         
         <div className="w-full">
           <TopNav />
