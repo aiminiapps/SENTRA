@@ -25,6 +25,8 @@ import {
   Orbit
 } from 'lucide-react';
 import Image from 'next/image';
+import { RiSkipRightLine } from "react-icons/ri";
+
 
 const SentraWalletSystem = ({ onComplete }) => {
   // Component States
@@ -367,7 +369,7 @@ const SentraWalletSystem = ({ onComplete }) => {
               {/* Skip Button */}
               <motion.button
                 onClick={handleSkip}
-                className="glass-button-secondary w-full h-14 text-base"
+                className="glass-button-secondary flex items-center justify-center gap-2 glass w-full text-base"
                 whileHover={{ 
                   scale: 1.02,
                   borderColor: "rgba(53, 198, 255, 0.5)"
@@ -377,7 +379,7 @@ const SentraWalletSystem = ({ onComplete }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.0 }}
               >
-                Continue Without Wallet
+                Continue Without Wallet <RiSkipRightLine size={30} className='text-gray-400'/>
               </motion.button>
             </div>
 
